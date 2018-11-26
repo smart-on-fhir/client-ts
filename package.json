@@ -9,7 +9,17 @@
     "dev": "webpack --watch --mode development"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "email": "vlad.ignatov@gmail.com",
+    "name": "Vladimir Ignatov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smart-on-fhir/client-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/smart-on-fhir/client-ts/issues"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/code": "^4.0.5",
