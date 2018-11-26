@@ -1,0 +1,1061 @@
+{
+  "errors": [],
+  "warnings": [
+    "[at-loader] ./src/client/guid.ts:15:31 \n    TS2339: Property 'Uint16Array' does not exist on type 'Window'.",
+    "[at-loader] ./src/client/bb-client.ts:253:49 \n    TS2304: Cannot find name 'args'.",
+    "[at-loader] ./src/client/bb-client.ts:253:63 \n    TS2304: Cannot find name 'args'.",
+    "[at-loader] ./src/client/bb-client.ts:271:10 \n    TS2339: Property 'ready' does not exist on type '{ debug: boolean; settings: { replaceBrowserHistory: boolean; fullSessionStorageSupport: boolean; }; resolveAuthType(fhirServiceUrl: any, callback: any, errback: any): void; }'.",
+    "[at-loader] ./src/client/bb-client.ts:344:24 \n    TS2339: Property 'auth' does not exist on type '{ serviceUrl: any; patientId: any; }'.",
+    "[at-loader] ./src/client/bb-client.ts:352:15 \n    TS2348: Value of type 'typeof FhirClient' is not callable. Did you mean to include 'new'?",
+    "[at-loader] ./src/client/bb-client.ts:442:10 \n    TS2339: Property 'authorize' does not exist on type '{ debug: boolean; settings: { replaceBrowserHistory: boolean; fullSessionStorageSupport: boolean; }; resolveAuthType(fhirServiceUrl: any, callback: any, errback: any): void; }'."
+  ],
+  "version": "4.25.1",
+  "hash": "057a9d898bdbbc6c3e20",
+  "time": 3496,
+  "builtAt": 1542558425372,
+  "publicPath": "",
+  "outputPath": "/home/vlad/Dev/client-ts/dist",
+  "assetsByChunkName": {
+    "main": [
+      "fhir-client.js",
+      "fhir-client.js.map"
+    ]
+  },
+  "assets": [
+    {
+      "name": "fhir-client.js",
+      "size": 40963,
+      "chunks": [
+        "main"
+      ],
+      "chunkNames": [
+        "main"
+      ],
+      "emitted": true
+    },
+    {
+      "name": "fhir-client.js.map",
+      "size": 61877,
+      "chunks": [
+        "main"
+      ],
+      "chunkNames": [
+        "main"
+      ],
+      "emitted": true
+    }
+  ],
+  "filteredAssets": 0,
+  "entrypoints": {
+    "main": {
+      "chunks": [
+        "main"
+      ],
+      "assets": [
+        "fhir-client.js",
+        "fhir-client.js.map"
+      ],
+      "children": {},
+      "childAssets": {}
+    }
+  },
+  "namedChunkGroups": {
+    "main": {
+      "chunks": [
+        "main"
+      ],
+      "assets": [
+        "fhir-client.js",
+        "fhir-client.js.map"
+      ],
+      "children": {},
+      "childAssets": {}
+    }
+  },
+  "chunks": [
+    {
+      "id": "main",
+      "rendered": true,
+      "initial": true,
+      "entry": true,
+      "size": 34823,
+      "names": [
+        "main"
+      ],
+      "files": [
+        "fhir-client.js",
+        "fhir-client.js.map"
+      ],
+      "hash": "f5eabaa8174eb86be079",
+      "siblings": [],
+      "parents": [],
+      "children": [],
+      "childrenByOrder": {},
+      "modules": [
+        {
+          "id": "./node_modules/process/browser.js",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/source-map-loader/index.js!/home/vlad/Dev/client-ts/node_modules/process/browser.js",
+          "name": "./node_modules/process/browser.js",
+          "index": 4,
+          "index2": 2,
+          "size": 5418,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "issuerId": "./src/client/bb-client.ts",
+          "issuerName": "./src/client/bb-client.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            },
+            {
+              "id": "./src/client/bb-client.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "name": "./src/client/bb-client.ts",
+              "profile": {
+                "factory": 14,
+                "building": 319,
+                "dependencies": 1
+              }
+            }
+          ],
+          "profile": {
+            "factory": 56,
+            "building": 20
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "process",
+              "loc": "1:0-50"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 2,
+          "source": "// shim for using process in browser\nvar process = module.exports = {};\n\n// cached from whatever global is present so that test runners that stub it\n// don't break things.  But we need to wrap it in a try catch in case it is\n// wrapped in strict mode code which doesn't define any globals.  It's inside a\n// function because try/catches deoptimize in certain engines.\n\nvar cachedSetTimeout;\nvar cachedClearTimeout;\n\nfunction defaultSetTimout() {\n    throw new Error('setTimeout has not been defined');\n}\nfunction defaultClearTimeout () {\n    throw new Error('clearTimeout has not been defined');\n}\n(function () {\n    try {\n        if (typeof setTimeout === 'function') {\n            cachedSetTimeout = setTimeout;\n        } else {\n            cachedSetTimeout = defaultSetTimout;\n        }\n    } catch (e) {\n        cachedSetTimeout = defaultSetTimout;\n    }\n    try {\n        if (typeof clearTimeout === 'function') {\n            cachedClearTimeout = clearTimeout;\n        } else {\n            cachedClearTimeout = defaultClearTimeout;\n        }\n    } catch (e) {\n        cachedClearTimeout = defaultClearTimeout;\n    }\n} ())\nfunction runTimeout(fun) {\n    if (cachedSetTimeout === setTimeout) {\n        //normal enviroments in sane situations\n        return setTimeout(fun, 0);\n    }\n    // if setTimeout wasn't available but was latter defined\n    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {\n        cachedSetTimeout = setTimeout;\n        return setTimeout(fun, 0);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedSetTimeout(fun, 0);\n    } catch(e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally\n            return cachedSetTimeout.call(null, fun, 0);\n        } catch(e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error\n            return cachedSetTimeout.call(this, fun, 0);\n        }\n    }\n\n\n}\nfunction runClearTimeout(marker) {\n    if (cachedClearTimeout === clearTimeout) {\n        //normal enviroments in sane situations\n        return clearTimeout(marker);\n    }\n    // if clearTimeout wasn't available but was latter defined\n    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {\n        cachedClearTimeout = clearTimeout;\n        return clearTimeout(marker);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedClearTimeout(marker);\n    } catch (e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally\n            return cachedClearTimeout.call(null, marker);\n        } catch (e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.\n            // Some versions of I.E. have different rules for clearTimeout vs setTimeout\n            return cachedClearTimeout.call(this, marker);\n        }\n    }\n\n\n\n}\nvar queue = [];\nvar draining = false;\nvar currentQueue;\nvar queueIndex = -1;\n\nfunction cleanUpNextTick() {\n    if (!draining || !currentQueue) {\n        return;\n    }\n    draining = false;\n    if (currentQueue.length) {\n        queue = currentQueue.concat(queue);\n    } else {\n        queueIndex = -1;\n    }\n    if (queue.length) {\n        drainQueue();\n    }\n}\n\nfunction drainQueue() {\n    if (draining) {\n        return;\n    }\n    var timeout = runTimeout(cleanUpNextTick);\n    draining = true;\n\n    var len = queue.length;\n    while(len) {\n        currentQueue = queue;\n        queue = [];\n        while (++queueIndex < len) {\n            if (currentQueue) {\n                currentQueue[queueIndex].run();\n            }\n        }\n        queueIndex = -1;\n        len = queue.length;\n    }\n    currentQueue = null;\n    draining = false;\n    runClearTimeout(timeout);\n}\n\nprocess.nextTick = function (fun) {\n    var args = new Array(arguments.length - 1);\n    if (arguments.length > 1) {\n        for (var i = 1; i < arguments.length; i++) {\n            args[i - 1] = arguments[i];\n        }\n    }\n    queue.push(new Item(fun, args));\n    if (queue.length === 1 && !draining) {\n        runTimeout(drainQueue);\n    }\n};\n\n// v8 likes predictible objects\nfunction Item(fun, array) {\n    this.fun = fun;\n    this.array = array;\n}\nItem.prototype.run = function () {\n    this.fun.apply(null, this.array);\n};\nprocess.title = 'browser';\nprocess.browser = true;\nprocess.env = {};\nprocess.argv = [];\nprocess.version = ''; // empty string to avoid regexp issues\nprocess.versions = {};\n\nfunction noop() {}\n\nprocess.on = noop;\nprocess.addListener = noop;\nprocess.once = noop;\nprocess.off = noop;\nprocess.removeListener = noop;\nprocess.removeAllListeners = noop;\nprocess.emit = noop;\nprocess.prependListener = noop;\nprocess.prependOnceListener = noop;\n\nprocess.listeners = function (name) { return [] }\n\nprocess.binding = function (name) {\n    throw new Error('process.binding is not supported');\n};\n\nprocess.cwd = function () { return '/' };\nprocess.chdir = function (dir) {\n    throw new Error('process.chdir is not supported');\n};\nprocess.umask = function() { return 0; };\n"
+        },
+        {
+          "id": "./src/client/adapter.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/adapter.ts",
+          "name": "./src/client/adapter.ts",
+          "index": 2,
+          "index2": 0,
+          "size": 220,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "issuerId": "./src/client/entry.ts",
+          "issuerName": "./src/client/entry.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            }
+          ],
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "./adapter",
+              "loc": "4:16-36"
+            },
+            {
+              "moduleId": "./src/client/client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/client.ts",
+              "module": "./src/client/client.ts",
+              "moduleName": "./src/client/client.ts",
+              "type": "cjs require",
+              "userRequest": "./adapter",
+              "loc": "4:16-36"
+            },
+            {
+              "moduleId": "./src/client/entry.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "module": "./src/client/entry.ts",
+              "moduleName": "./src/client/entry.ts",
+              "type": "cjs require",
+              "userRequest": "./adapter",
+              "loc": "5:16-36"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 1,
+          "source": "\"use strict\";\nexports.__esModule = true;\nvar adapter;\nexports[\"default\"] = {\n    debug: true,\n    set: function (newAdapter) {\n        adapter = newAdapter;\n    },\n    get: function () {\n        return adapter;\n    }\n};\n"
+        },
+        {
+          "id": "./src/client/bb-client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "name": "./src/client/bb-client.ts",
+          "index": 3,
+          "index2": 6,
+          "size": 17969,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "issuerId": "./src/client/entry.ts",
+          "issuerName": "./src/client/entry.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            }
+          ],
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/entry.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "module": "./src/client/entry.ts",
+              "moduleName": "./src/client/entry.ts",
+              "type": "cjs require",
+              "userRequest": "./bb-client",
+              "loc": "4:18-40"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 1,
+          "source": "\"use strict\";\nexports.__esModule = true;\nvar jsonwebtoken_1 = require(\"jsonwebtoken\");\nvar adapter_1 = require(\"./adapter\");\nvar client_1 = require(\"./client\");\nvar guid_1 = require(\"./guid\");\nvar utils_1 = require(\"./utils\");\nvar BBClient = {\n    debug: true,\n    settings: {\n        // Replaces the browser's current URL\n        // using window.history.replaceState API.\n        // Default to true\n        replaceBrowserHistory: true,\n        // When set to true, this variable will fully utilize\n        // HTML5 sessionStorage API.\n        // Default to true\n        // This variable can be overriden to false by setting\n        // FHIR.oauth2.settings.fullSessionStorageSupport = false.\n        // When set to false, the sessionStorage will be keyed\n        // by a state variable. This is to allow the embedded IE browser\n        // instances instantiated on a single thread to continue to\n        // function without having sessionStorage data shared\n        // across the embedded IE instances.\n        fullSessionStorageSupport: true\n    },\n    resolveAuthType: function (fhirServiceUrl, callback, errback) {\n        adapter_1[\"default\"].get().http({\n            method: \"GET\",\n            url: utils_1.stripTrailingSlash(fhirServiceUrl) + \"/metadata\"\n        }).then(function (r) {\n            var type = \"none\";\n            try {\n                if (r.rest[0].security.service[0].coding[0].code.toLowerCase() === \"smart-on-fhir\") {\n                    type = \"oauth2\";\n                }\n            }\n            catch (err) {\n                // ignore\n            }\n            if (callback) {\n                callback(type);\n            }\n        }, function () {\n            if (errback) {\n                errback(\"Unable to fetch conformance statement\");\n            }\n        });\n    }\n};\nexports[\"default\"] = BBClient;\n/**\n * Get the previous token stored in sessionStorage\n * based on fullSessionStorageSupport flag.\n * @return object JSON tokenResponse\n */\nfunction getPreviousToken() {\n    if (BBClient.settings.fullSessionStorageSupport) {\n        return JSON.parse(sessionStorage.tokenResponse);\n    }\n    else {\n        var state = utils_1.urlParam(\"state\");\n        return JSON.parse(sessionStorage[state]).tokenResponse;\n    }\n}\nfunction completeTokenFlow(hash) {\n    if (hash === void 0) { hash = location.hash; }\n    var ret = adapter_1[\"default\"].get().defer();\n    setTimeout(function () {\n        var oauthResult = hash.match(/#(.*)/);\n        oauthResult = oauthResult ? oauthResult[1] : \"\";\n        oauthResult = oauthResult.split(/&/);\n        var authorization = {};\n        for (var _i = 0, oauthResult_1 = oauthResult; _i < oauthResult_1.length; _i++) {\n            var pair = oauthResult_1[_i];\n            var kv = pair.split(/=/);\n            if (kv[0].length > 0 && kv[1]) {\n                authorization[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);\n            }\n        }\n        ret.resolve(authorization);\n    }, 0);\n    return ret.promise;\n}\nfunction completeCodeFlow(params) {\n    if (!params) {\n        params = {\n            code: utils_1.urlParam(\"code\"),\n            state: utils_1.urlParam(\"state\")\n        };\n    }\n    var ret = adapter_1[\"default\"].get().defer();\n    var state = JSON.parse(sessionStorage[params.state]);\n    if (window.history.replaceState && BBClient.settings.replaceBrowserHistory) {\n        window.history.replaceState({}, \"\", window.location.toString().replace(window.location.search, \"\"));\n    }\n    // Using window.history.pushState to append state to the query param.\n    // This will allow session data to be retrieved via the state param.\n    if (window.history.pushState && !BBClient.settings.fullSessionStorageSupport) {\n        var queryParam = window.location.search;\n        if (window.location.search.indexOf(\"state\") == -1) {\n            // Append state query param to URI for later.\n            // state query param will be used to look up\n            // token response upon page reload.\n            queryParam += (window.location.search ? \"&\" : \"?\");\n            queryParam += \"state=\" + params.state;\n            var url = window.location.protocol + \"//\" +\n                window.location.host +\n                window.location.pathname +\n                queryParam;\n            window.history.pushState({}, \"\", url);\n        }\n    }\n    var data = {\n        code: params.code,\n        grant_type: \"authorization_code\",\n        redirect_uri: state.client.redirect_uri\n    };\n    var headers = {};\n    if (state.client.secret) {\n        headers[\"Authorization\"] = \"Basic \" + btoa(state.client.client_id + \":\" + state.client.secret);\n    }\n    else {\n        data[\"client_id\"] = state.client.client_id;\n    }\n    adapter_1[\"default\"].get().http({\n        method: \"POST\",\n        url: state.provider.oauth2.token_uri,\n        data: data,\n        headers: headers\n    }).then(function (authz) {\n        for (var i in params) {\n            if (params.hasOwnProperty(i)) {\n                authz[i] = params[i];\n            }\n        }\n        ret.resolve(authz);\n    }, function () {\n        var args = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            args[_i] = arguments[_i];\n        }\n        console.log.apply(console, [\"failed to exchange code for access_token\"].concat(args));\n        ret.reject();\n    });\n    return ret.promise;\n}\n/**\n * This code is needed for the page refresh/reload workflow.\n * When the access token is nearing expriration or is expired,\n * this function will make an ajax POST call to obtain a new\n * access token using the current refresh token.\n * @return promise object\n */\nfunction completeTokenRefreshFlow() {\n    var ret = adapter_1[\"default\"].get().defer();\n    var tokenResponse = getPreviousToken();\n    var state = JSON.parse(sessionStorage[tokenResponse.state]);\n    var refresh_token = tokenResponse.refresh_token;\n    adapter_1[\"default\"].get().http({\n        method: 'POST',\n        url: state.provider.oauth2.token_uri,\n        data: {\n            grant_type: 'refresh_token',\n            refresh_token: refresh_token\n        }\n    }).then(function (authz) {\n        authz = $.extend(tokenResponse, authz);\n        ret.resolve(authz);\n    }, function () {\n        console.warn('Failed to exchange refresh_token for access_token', arguments);\n        ret.reject('Failed to exchange refresh token for access token. ' +\n            'Please close and re-launch the application again.');\n    });\n    return ret.promise;\n}\nfunction completePageReload() {\n    var d = adapter_1[\"default\"].get().defer();\n    process.nextTick(function () {\n        d.resolve(getPreviousToken());\n    });\n    return d;\n}\nfunction readyArgs() {\n    var input = null;\n    var callback = function () { };\n    var errback = function () { };\n    if (arguments.length === 0) {\n        throw \"Can't call 'ready' without arguments\";\n    }\n    else if (arguments.length === 1) {\n        callback = arguments[0];\n    }\n    else if (arguments.length === 2) {\n        if (typeof arguments[0] === 'function') {\n            callback = arguments[0];\n            errback = arguments[1];\n        }\n        else if (typeof arguments[0] === 'object') {\n            input = arguments[0];\n            callback = arguments[1];\n        }\n        else {\n            throw \"ready called with invalid arguments\";\n        }\n    }\n    else if (arguments.length === 3) {\n        input = arguments[0];\n        callback = arguments[1];\n        errback = arguments[2];\n    }\n    else {\n        throw \"ready called with invalid arguments\";\n    }\n    return {\n        input: input,\n        callback: callback,\n        errback: errback\n    };\n}\n/**\n * Check the tokenResponse object to see if it is valid or not.\n * This is to handle the case of a refresh/reload of the page\n * after the token was already obtain.\n * @return boolean\n */\nfunction validTokenResponse() {\n    if (BBClient.settings.fullSessionStorageSupport && sessionStorage.tokenResponse) {\n        return true;\n    }\n    else {\n        if (!BBClient.settings.fullSessionStorageSupport) {\n            var state = utils_1.urlParam(\"state\") || (args.input && args.input.state);\n            return (state && sessionStorage[state] && JSON.parse(sessionStorage[state]).tokenResponse);\n        }\n    }\n    return false;\n}\nfunction isFakeOAuthToken() {\n    if (validTokenResponse()) {\n        var token = getPreviousToken();\n        if (token && token.state) {\n            var state = JSON.parse(sessionStorage[token.state]);\n            return state.fake_token_response;\n        }\n    }\n    return false;\n}\nBBClient.ready = function (input, callback, errback) {\n    var args = readyArgs.apply(this, arguments);\n    // decide between token flow (implicit grant) and code flow (authorization code grant)\n    var isCode = utils_1.urlParam(\"code\") || (args.input && args.input.code);\n    var accessTokenResolver = null;\n    if (isFakeOAuthToken()) {\n        accessTokenResolver = completePageReload();\n        // In order to remove the state query parameter in the URL, both replaceBrowserHistory\n        // and fullSessionStorageSupport setting flags must be set to true. This allows querying the state\n        // through sessionStorage. If the browser does not support the replaceState method for the History Web API,\n        // or if either of the setting flags are false, the state property will be retrieved\n        // from the state query parameter in the URL.\n        if (window.history.replaceState\n            && BBClient.settings.replaceBrowserHistory\n            && BBClient.settings.fullSessionStorageSupport) {\n            window.history.replaceState({}, \"\", window.location.toString().replace(window.location.search, \"\"));\n        }\n    }\n    else {\n        if (validTokenResponse()) { // we're reloading after successful completion\n            // Check if 2 minutes from access token expiration timestamp\n            var tokenResponse = getPreviousToken();\n            var payloadCheck = jsonwebtoken_1.decode(tokenResponse.access_token);\n            var nearExpTime = Math.floor(Date.now() / 1000) >= (payloadCheck[\"exp\"] - 120);\n            if (tokenResponse.refresh_token\n                && tokenResponse.scope.indexOf(\"online_access\") > -1\n                && nearExpTime) { // refresh token flow\n                accessTokenResolver = completeTokenRefreshFlow();\n            }\n            else { // existing access token flow\n                accessTokenResolver = completePageReload();\n            }\n        }\n        else if (isCode) { // code flow\n            accessTokenResolver = completeCodeFlow(args.input);\n        }\n        else { // token flow\n            accessTokenResolver = completeTokenFlow(args.input);\n        }\n    }\n    accessTokenResolver.done(function (tokenResponse) {\n        if (!tokenResponse || !tokenResponse.state) {\n            return args.errback(\"No 'state' parameter found in authorization response.\");\n        }\n        // Save the tokenReponse object into sessionStorage\n        if (BBClient.settings.fullSessionStorageSupport) {\n            sessionStorage.tokenResponse = JSON.stringify(tokenResponse);\n        }\n        else {\n            //Save the tokenResponse object and the state into sessionStorage keyed by state\n            var combinedObject = $.extend(true, JSON.parse(sessionStorage[tokenResponse.state]), { 'tokenResponse': tokenResponse });\n            sessionStorage[tokenResponse.state] = JSON.stringify(combinedObject);\n        }\n        var state = JSON.parse(sessionStorage[tokenResponse.state]);\n        if (state.fake_token_response) {\n            tokenResponse = state.fake_token_response;\n        }\n        var fhirClientParams = {\n            serviceUrl: state.provider.url,\n            patientId: tokenResponse.patient\n        };\n        if (tokenResponse.id_token) {\n            var id_token = tokenResponse.id_token;\n            var payload = jsonwebtoken_1.decode(id_token);\n            fhirClientParams[\"userId\"] = payload[\"profile\"];\n        }\n        if (tokenResponse.access_token !== undefined) {\n            fhirClientParams.auth = {\n                type: 'bearer',\n                token: tokenResponse.access_token\n            };\n        }\n        else if (!state.fake_token_response) {\n            return args.errback(\"Failed to obtain access token.\");\n        }\n        var ret = client_1[\"default\"](fhirClientParams);\n        ret.state = JSON.parse(JSON.stringify(state));\n        ret.tokenResponse = JSON.parse(JSON.stringify(tokenResponse));\n        args.callback(ret);\n    }).fail(function (ret) {\n        ret ? args.errback(ret) : args.errback(\"Failed to obtain access token.\");\n    });\n};\nfunction providers(fhirServiceUrl, provider, callback, errback) {\n    // Shim for pre-OAuth2 launch parameters\n    if (isBypassOAuth()) {\n        process.nextTick(function () {\n            bypassOAuth(fhirServiceUrl, callback);\n        });\n        return;\n    }\n    // Skip conformance statement introspection when overriding provider setting are available\n    if (provider) {\n        provider['url'] = fhirServiceUrl;\n        process.nextTick(function () {\n            callback && callback(provider);\n        });\n        return;\n    }\n    adapter_1[\"default\"].get().http({\n        method: \"GET\",\n        url: utils_1.stripTrailingSlash(fhirServiceUrl) + \"/metadata\"\n    }).then(function (r) {\n        var res = {\n            \"name\": \"SMART on FHIR Testing Server\",\n            \"description\": \"Dev server for SMART on FHIR\",\n            \"url\": fhirServiceUrl,\n            \"oauth2\": {\n                \"registration_uri\": null,\n                \"authorize_uri\": null,\n                \"token_uri\": null\n            }\n        };\n        try {\n            var smartExtension = r.rest[0].security.extension.filter(function (e) {\n                return (e.url === \"http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris\");\n            });\n            smartExtension[0].extension.forEach(function (arg, index, array) {\n                if (arg.url === \"register\") {\n                    res.oauth2.registration_uri = arg.valueUri;\n                }\n                else if (arg.url === \"authorize\") {\n                    res.oauth2.authorize_uri = arg.valueUri;\n                }\n                else if (arg.url === \"token\") {\n                    res.oauth2.token_uri = arg.valueUri;\n                }\n            });\n        }\n        catch (err) {\n            return errback && errback(err);\n        }\n        callback && callback(res);\n    }, function () {\n        errback && errback(\"Unable to fetch conformance statement\");\n    });\n}\nvar noAuthFhirProvider = function (serviceUrl) {\n    return {\n        \"oauth2\": null,\n        \"url\": serviceUrl\n    };\n};\nfunction isBypassOAuth() {\n    return (utils_1.urlParam(\"fhirServiceUrl\") && !(utils_1.urlParam(\"iss\")));\n}\nfunction bypassOAuth(fhirServiceUrl, callback) {\n    callback && callback({\n        \"oauth2\": null,\n        \"url\": fhirServiceUrl || utils_1.urlParam(\"fhirServiceUrl\")\n    });\n}\nBBClient.authorize = function (params, errback) {\n    if (!errback) {\n        errback = function () {\n            console.log(\"Failed to discover authorization URL given\", params);\n        };\n    }\n    // prevent inheritance of tokenResponse from parent window\n    delete sessionStorage.tokenResponse;\n    if (!params.client) {\n        params = {\n            client: params\n        };\n    }\n    if (!params.response_type) {\n        params.response_type = \"code\";\n    }\n    if (!params.client.redirect_uri) {\n        params.client.redirect_uri = utils_1.relative(\"\");\n    }\n    if (!params.client.redirect_uri.match(/:\\/\\//)) {\n        params.client.redirect_uri = utils_1.relative(params.client.redirect_uri);\n    }\n    var launch = utils_1.urlParam(\"launch\");\n    if (launch) {\n        if (!params.client.scope.match(/launch/)) {\n            params.client.scope += \" launch\";\n        }\n        params.client.launch = launch;\n    }\n    var server = utils_1.urlParam(\"iss\") || utils_1.urlParam(\"fhirServiceUrl\");\n    if (server) {\n        if (!params.server) {\n            params.server = server;\n        }\n    }\n    if (utils_1.urlParam(\"patientId\")) {\n        params.fake_token_response = params.fake_token_response || {};\n        params.fake_token_response.patient = utils_1.urlParam(\"patientId\");\n    }\n    providers(params.server, params.provider, function (provider) {\n        params.provider = provider;\n        var state = params.client.state || guid_1[\"default\"].newGuid();\n        var client = params.client;\n        if (params.provider.oauth2 == null) {\n            // Adding state to tokenResponse object\n            if (BBClient.settings.fullSessionStorageSupport) {\n                sessionStorage[state] = JSON.stringify(params);\n                sessionStorage.tokenResponse = JSON.stringify({ state: state });\n            }\n            else {\n                var combinedObject = $.extend(true, params, { \"tokenResponse\": { state: state } });\n                sessionStorage[state] = JSON.stringify(combinedObject);\n            }\n            window.location.href = client.redirect_uri + \"?state=\" + encodeURIComponent(state);\n            return;\n        }\n        sessionStorage[state] = JSON.stringify(params);\n        console.log(\"sending client reg\", params.client);\n        var redirectTo = params.provider.oauth2.authorize_uri + \"?\" +\n            \"client_id=\" + encodeURIComponent(client.client_id) + \"&\" +\n            \"response_type=\" + encodeURIComponent(params.response_type) + \"&\" +\n            \"scope=\" + encodeURIComponent(client.scope) + \"&\" +\n            \"redirect_uri=\" + encodeURIComponent(client.redirect_uri) + \"&\" +\n            \"state=\" + encodeURIComponent(state) + \"&\" +\n            \"aud=\" + encodeURIComponent(params.server);\n        if (typeof client.launch !== \"undefined\" && client.launch) {\n            redirectTo += \"&launch=\" + encodeURIComponent(client.launch);\n        }\n        window.location.href = redirectTo;\n    }, errback);\n};\n"
+        },
+        {
+          "id": "./src/client/client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/client.ts",
+          "name": "./src/client/client.ts",
+          "index": 1,
+          "index2": 1,
+          "size": 6066,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "issuerId": "./src/client/entry.ts",
+          "issuerName": "./src/client/entry.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            }
+          ],
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "./client",
+              "loc": "5:15-34"
+            },
+            {
+              "moduleId": "./src/client/entry.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "module": "./src/client/entry.ts",
+              "moduleName": "./src/client/entry.ts",
+              "type": "cjs require",
+              "userRequest": "./client",
+              "loc": "3:15-34"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 1,
+          "source": "\"use strict\";\nexports.__esModule = true;\n// var btoa = require('btoa');\nvar adapter_1 = require(\"./adapter\");\n// function ClientPrototype() {}\n// var clientUtils = require('./utils');\n// Object.keys(clientUtils).forEach(function(k){\n//   ClientPrototype.prototype[k] = clientUtils[k];\n// });\n// function FhirClient(p) {\n//   // p.serviceUrl\n//   // p.auth {\n//     //    type: 'none' | 'basic' | 'bearer'\n//     //    basic --> username, password\n//     //    bearer --> token\n//     // }\n//     var client = new ClientPrototype();\n//     var fhir = Adapter.get().fhirjs;\n//     var server = client.server = {\n//       serviceUrl: p.serviceUrl,\n//       auth: p.auth || {type: 'none'}\n//     }\n//     var auth = {};\n//     if (server.auth.type === 'basic') {\n//         auth = {\n//             user: server.auth.username,\n//             pass: server.auth.password\n//         };\n//     } else if (server.auth.type === 'bearer') {\n//         auth = {\n//             bearer: server.auth.token\n//         };\n//     }\n//     client.api = fhir({\n//         baseUrl: server.serviceUrl,\n//         auth: auth\n//     });\n//     if (p.patientId) {\n//         client.patient = {};\n//         client.patient.id = p.patientId;\n//         client.patient.api = fhir({\n//             baseUrl: server.serviceUrl,\n//             auth: auth,\n//             patient: p.patientId\n//         });\n//         client.patient.read = function(){\n//             return client.get({resource: 'Patient'});\n//         };\n//     }\n//     var fhirAPI = (client.patient)?client.patient.api:client.api;\n//     client.userId = p.userId;\n//     server.auth = server.auth ||  {\n//       type: 'none'\n//     };\n//     if (!client.server.serviceUrl || !client.server.serviceUrl.match(/https?:\\/\\/.+[^\\/]$/)) {\n//       throw \"Must supply a `server` property whose `serviceUrl` begins with http(s) \" + \n//         \"and does NOT include a trailing slash. E.g. `https://fhir.aws.af.cm/fhir`\";\n//     }\n//     client.authenticated = function(p) {\n//       if (server.auth.type === 'none') {\n//         return p;\n//       }\n//       var h;\n//       if (server.auth.type === 'basic') {\n//         h = \"Basic \" + btoa(server.auth.username + \":\" + server.auth.password);\n//       } else if (server.auth.type === 'bearer') {\n//         h = \"Bearer \" + server.auth.token;\n//       }\n//       if (!p.headers) {p.headers = {};}\n//       p.headers['Authorization'] = h\n//       //p.beforeSend = function (xhr) { xhr.setRequestHeader (\"Authorization\", h); }\n//       return p;\n//     };\n//     client.get = function(p) {\n//         var ret = Adapter.get().defer();\n//         var params = {type: p.resource};\n//         if (p.id) {\n//             params[\"id\"] = p.id;\n//         }\n//         fhirAPI.read(params)\n//             .then(function(res){\n//                 ret.resolve(res.data);\n//             }, function(){\n//                 ret.reject(\"Could not fetch \" + p.resource + \" \" + p.id);\n//             });\n//         return ret.promise;\n//     };\n//     client.user = {\n//       'read': function(){\n//         var userId = client.userId;\n//         resource = userId.split(\"/\")[0];\n//         uid = userId.split(\"/\")[1];\n//         return client.get({resource: resource, id: uid});\n//       }\n//     };\n//     function absolute(path, server) {\n//       if (path.match(/^http/)) return path;\n//       if (path.match(/^urn/)) return path;\n//       // strip leading slash\n//       if (path.charAt(0) == \"/\") path = path.substr(1);\n//       return server.serviceUrl + '/' + path;\n//     }\n//     client.getBinary = function(url) {\n//       var ret = Adapter.get().defer();\n//       Adapter.get().http(client.authenticated({\n//         type: 'GET',\n//         url: url,\n//         dataType: 'blob'\n//       }))\n//       .done(function(blob){\n//         ret.resolve(blob);\n//       })\n//       .fail(function(){\n//         ret.reject(\"Could not fetch \" + url, arguments);\n//       });\n//       return ret.promise;\n//     };\n//     client.fetchBinary = function(path) {\n//         var url = absolute(path, server);\n//         return client.getBinary(url);\n//     };\n//     return client;\n// }\nfunction absolute(path, server) {\n    if (path.match(/^http/)) {\n        return path;\n    }\n    if (path.match(/^urn/)) {\n        return path;\n    }\n    // strip leading slash\n    if (path.charAt(0) == \"/\") {\n        path = path.substr(1);\n    }\n    return server.serviceUrl + \"/\" + path;\n}\nvar FhirClient = /** @class */ (function () {\n    function FhirClient(_a) {\n        var serviceUrl = _a.serviceUrl, auth = _a.auth;\n        this.server = {\n            serviceUrl: serviceUrl,\n            auth: auth || { type: \"none\" }\n        };\n    }\n    FhirClient.prototype.getBinary = function (url) {\n        var ret = adapter_1[\"default\"].get().defer();\n        adapter_1[\"default\"].get().http(this.authenticated({\n            type: \"GET\",\n            url: url,\n            dataType: \"blob\"\n        }))\n            .done(function (blob) { return ret.resolve(blob); })\n            .fail(function () {\n            var args = [];\n            for (var _i = 0; _i < arguments.length; _i++) {\n                args[_i] = arguments[_i];\n            }\n            return ret.reject.apply(ret, [\"Could not fetch \" + url].concat(args));\n        });\n        return ret.promise;\n    };\n    FhirClient.prototype.fetchBinary = function (path) {\n        var url = absolute(path, this.server);\n        return this.getBinary(url);\n    };\n    FhirClient.prototype.authenticated = function (p) {\n        if (this.server.auth.type == \"none\") {\n            return p;\n        }\n        var h;\n        if (this.server.auth.type == \"basic\") {\n            h = \"Basic \" + btoa(this.server.auth.username + \":\" + this.server.auth.password);\n        }\n        else if (this.server.auth.type == \"bearer\") {\n            h = \"Bearer \" + this.server.auth.token;\n        }\n        if (!p.headers) {\n            p.headers = {};\n        }\n        p.headers.Authorization = h;\n        return p;\n    };\n    return FhirClient;\n}());\nexports[\"default\"] = FhirClient;\n"
+        },
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "index": 0,
+          "index2": 7,
+          "size": 291,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": null,
+          "issuerId": null,
+          "issuerName": null,
+          "issuerPath": null,
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": null,
+              "moduleIdentifier": null,
+              "module": null,
+              "moduleName": null,
+              "type": "single entry",
+              "userRequest": "./src/client/entry.ts",
+              "loc": "main"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 0,
+          "source": "\"use strict\";\nexports.__esModule = true;\nvar client_1 = require(\"./client\");\nvar bb_client_1 = require(\"./bb-client\");\nvar adapter_1 = require(\"./adapter\");\nwindow.FHIR = {\n    client: client_1[\"default\"],\n    oauth2: bb_client_1[\"default\"]\n};\nexports[\"default\"] = adapter_1[\"default\"].set;\n"
+        },
+        {
+          "id": "./src/client/guid.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/guid.ts",
+          "name": "./src/client/guid.ts",
+          "index": 6,
+          "index2": 4,
+          "size": 1458,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "issuerId": "./src/client/bb-client.ts",
+          "issuerName": "./src/client/bb-client.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            },
+            {
+              "id": "./src/client/bb-client.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "name": "./src/client/bb-client.ts",
+              "profile": {
+                "factory": 14,
+                "building": 319,
+                "dependencies": 1
+              }
+            }
+          ],
+          "profile": {
+            "factory": 56,
+            "building": 20
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "./guid",
+              "loc": "6:13-30"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 2,
+          "source": "\"use strict\";\nexports.__esModule = true;\nvar EMPTY = \"00000000-0000-0000-0000-000000000000\";\nfunction _padLeft(paddingString, width, replacementChar) {\n    return paddingString.length >= width ?\n        paddingString :\n        _padLeft(replacementChar + paddingString, width, replacementChar || \" \");\n}\nfunction _s4(num) {\n    var hexadecimalResult = num.toString(16);\n    return _padLeft(hexadecimalResult, 4, \"0\");\n}\nfunction _cryptoGuid() {\n    var buffer = new window.Uint16Array(8);\n    window.crypto.getRandomValues(buffer);\n    return [\n        _s4(buffer[0]) + _s4(buffer[1]),\n        _s4(buffer[2]),\n        _s4(buffer[3]),\n        _s4(buffer[4]),\n        _s4(buffer[5]) + _s4(buffer[6]) + _s4(buffer[7])\n    ].join(\"-\");\n}\nfunction _guid() {\n    var currentDateMilliseconds = new Date().getTime();\n    return \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, function (currentChar) {\n        var randomChar = (currentDateMilliseconds + Math.random() * 16) % 16 | 0;\n        currentDateMilliseconds = Math.floor(currentDateMilliseconds / 16);\n        return (currentChar == \"x\" ? randomChar : (randomChar & 0x7 | 0x8)).toString(16);\n    });\n}\nfunction create() {\n    var hasCrypto = typeof (window.crypto) != \"undefined\", hasRandomValues = hasCrypto && typeof (window.crypto.getRandomValues) != 'undefined';\n    return (hasCrypto && hasRandomValues) ? _cryptoGuid() : _guid();\n}\nexports[\"default\"] = {\n    newGuid: create,\n    empty: EMPTY\n};\n"
+        },
+        {
+          "id": "./src/client/utils.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/utils.ts",
+          "name": "./src/client/utils.ts",
+          "index": 7,
+          "index2": 5,
+          "size": 3359,
+          "cacheable": true,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "issuerId": "./src/client/bb-client.ts",
+          "issuerName": "./src/client/bb-client.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            },
+            {
+              "id": "./src/client/bb-client.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "name": "./src/client/bb-client.ts",
+              "profile": {
+                "factory": 14,
+                "building": 319,
+                "dependencies": 1
+              }
+            }
+          ],
+          "profile": {
+            "factory": 56,
+            "building": 20
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "./utils",
+              "loc": "7:14-32"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 2,
+          "source": "\"use strict\";\nexports.__esModule = true;\nfunction urlParam(p, forceArray) {\n    if (forceArray === void 0) { forceArray = false; }\n    var query = location.search.substr(1);\n    var data = query.split(\"&\");\n    var result = [];\n    for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {\n        var pair = data_1[_i];\n        var _a = pair.split(\"=\"), name_1 = _a[0], value = _a[1];\n        if (name_1 === p) {\n            result.push(decodeURIComponent(value.replace(/\\+/g, \"%20\")));\n        }\n    }\n    if (forceArray) {\n        return result;\n    }\n    if (result.length === 0) {\n        return null;\n    }\n    return result[0];\n}\nexports.urlParam = urlParam;\nfunction stripTrailingSlash(str) {\n    if (str.substr(-1) === \"/\") {\n        return str.substr(0, str.length - 1);\n    }\n    return str;\n}\nexports.stripTrailingSlash = stripTrailingSlash;\nfunction relative(url) {\n    return (location.protocol + \"//\" + location.host + location.pathname).match(/(.*\\/)[^\\/]*/)[1] + url;\n}\nexports.relative = relative;\nfunction byCodes(observations, property) {\n    var bank = byCode(observations, property);\n    function byCodes() {\n        var ret = [];\n        for (var i = 0; i < arguments.length; i++) {\n            var set = bank[arguments[i]];\n            if (set) {\n                [].push.apply(ret, set);\n            }\n        }\n        return ret;\n    }\n    return byCodes;\n}\nexports.byCodes = byCodes;\nfunction byCode(observations, property) {\n    var ret = {};\n    if (!Array.isArray(observations)) {\n        observations = [observations];\n    }\n    observations.forEach(function (o) {\n        if (o.resourceType === \"Observation\") {\n            if (o[property] && Array.isArray(o[property].coding)) {\n                o[property].coding.forEach(function (coding) {\n                    ret[coding.code] = ret[coding.code] || [];\n                    ret[coding.code].push(o);\n                });\n            }\n        }\n    });\n    return ret;\n}\nexports.byCode = byCode;\nfunction ensureNumerical(pq) {\n    if (typeof pq.value !== \"number\") {\n        throw new Error(\"Found a non-numerical unit: \" + pq.value + \" \" + pq.code);\n    }\n}\nexports.units = {\n    cm: function (pq) {\n        ensureNumerical(pq);\n        if (pq.code == \"cm\") {\n            return pq.value;\n        }\n        if (pq.code == \"m\") {\n            return 100 * pq.value;\n        }\n        if (pq.code == \"in\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"[in_us]\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"[in_i]\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"ft\") {\n            return 30.48 * pq.value;\n        }\n        if (pq.code == \"[ft_us]\") {\n            return 30.48 * pq.value;\n        }\n        throw new Error(\"Unrecognized length unit: \" + pq.code);\n    },\n    kg: function (pq) {\n        ensureNumerical(pq);\n        if (pq.code == \"kg\") {\n            return pq.value;\n        }\n        if (pq.code == \"g\") {\n            return pq.value / 1000;\n        }\n        if (pq.code.match(/lb/)) {\n            return pq.value / 2.20462;\n        }\n        if (pq.code.match(/oz/)) {\n            return pq.value / 35.274;\n        }\n        throw new Error(\"Unrecognized weight unit: \" + pq.code);\n    },\n    any: function (pq) {\n        ensureNumerical(pq);\n        return pq.value;\n    }\n};\n"
+        },
+        {
+          "id": "jsonwebtoken",
+          "identifier": "external \"jsonwebtoken\"",
+          "name": "external \"jsonwebtoken\"",
+          "index": 5,
+          "index2": 3,
+          "size": 42,
+          "built": true,
+          "optional": false,
+          "prefetched": false,
+          "chunks": [
+            "main"
+          ],
+          "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "issuerId": "./src/client/bb-client.ts",
+          "issuerName": "./src/client/bb-client.ts",
+          "issuerPath": [
+            {
+              "id": "./src/client/entry.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+              "name": "./src/client/entry.ts",
+              "profile": {
+                "factory": 64,
+                "building": 2062
+              }
+            },
+            {
+              "id": "./src/client/bb-client.ts",
+              "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "name": "./src/client/bb-client.ts",
+              "profile": {
+                "factory": 14,
+                "building": 319,
+                "dependencies": 1
+              }
+            }
+          ],
+          "profile": {
+            "factory": 56,
+            "building": 20
+          },
+          "failed": false,
+          "errors": 0,
+          "warnings": 0,
+          "assets": [],
+          "reasons": [
+            {
+              "moduleId": "./src/client/bb-client.ts",
+              "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+              "module": "./src/client/bb-client.ts",
+              "moduleName": "./src/client/bb-client.ts",
+              "type": "cjs require",
+              "userRequest": "jsonwebtoken",
+              "loc": "3:21-44"
+            }
+          ],
+          "providedExports": null,
+          "optimizationBailout": [],
+          "depth": 2
+        }
+      ],
+      "filteredModules": 0,
+      "origins": [
+        {
+          "module": "",
+          "moduleIdentifier": "",
+          "moduleName": "",
+          "loc": "main",
+          "request": "./src/client/entry.ts",
+          "reasons": []
+        }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "id": "./node_modules/process/browser.js",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/source-map-loader/index.js!/home/vlad/Dev/client-ts/node_modules/process/browser.js",
+      "name": "./node_modules/process/browser.js",
+      "index": 4,
+      "index2": 2,
+      "size": 5418,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+      "issuerId": "./src/client/bb-client.ts",
+      "issuerName": "./src/client/bb-client.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        },
+        {
+          "id": "./src/client/bb-client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "name": "./src/client/bb-client.ts",
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          }
+        }
+      ],
+      "profile": {
+        "factory": 56,
+        "building": 20
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "process",
+          "loc": "1:0-50"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 2,
+      "source": "// shim for using process in browser\nvar process = module.exports = {};\n\n// cached from whatever global is present so that test runners that stub it\n// don't break things.  But we need to wrap it in a try catch in case it is\n// wrapped in strict mode code which doesn't define any globals.  It's inside a\n// function because try/catches deoptimize in certain engines.\n\nvar cachedSetTimeout;\nvar cachedClearTimeout;\n\nfunction defaultSetTimout() {\n    throw new Error('setTimeout has not been defined');\n}\nfunction defaultClearTimeout () {\n    throw new Error('clearTimeout has not been defined');\n}\n(function () {\n    try {\n        if (typeof setTimeout === 'function') {\n            cachedSetTimeout = setTimeout;\n        } else {\n            cachedSetTimeout = defaultSetTimout;\n        }\n    } catch (e) {\n        cachedSetTimeout = defaultSetTimout;\n    }\n    try {\n        if (typeof clearTimeout === 'function') {\n            cachedClearTimeout = clearTimeout;\n        } else {\n            cachedClearTimeout = defaultClearTimeout;\n        }\n    } catch (e) {\n        cachedClearTimeout = defaultClearTimeout;\n    }\n} ())\nfunction runTimeout(fun) {\n    if (cachedSetTimeout === setTimeout) {\n        //normal enviroments in sane situations\n        return setTimeout(fun, 0);\n    }\n    // if setTimeout wasn't available but was latter defined\n    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {\n        cachedSetTimeout = setTimeout;\n        return setTimeout(fun, 0);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedSetTimeout(fun, 0);\n    } catch(e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally\n            return cachedSetTimeout.call(null, fun, 0);\n        } catch(e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error\n            return cachedSetTimeout.call(this, fun, 0);\n        }\n    }\n\n\n}\nfunction runClearTimeout(marker) {\n    if (cachedClearTimeout === clearTimeout) {\n        //normal enviroments in sane situations\n        return clearTimeout(marker);\n    }\n    // if clearTimeout wasn't available but was latter defined\n    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {\n        cachedClearTimeout = clearTimeout;\n        return clearTimeout(marker);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedClearTimeout(marker);\n    } catch (e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally\n            return cachedClearTimeout.call(null, marker);\n        } catch (e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.\n            // Some versions of I.E. have different rules for clearTimeout vs setTimeout\n            return cachedClearTimeout.call(this, marker);\n        }\n    }\n\n\n\n}\nvar queue = [];\nvar draining = false;\nvar currentQueue;\nvar queueIndex = -1;\n\nfunction cleanUpNextTick() {\n    if (!draining || !currentQueue) {\n        return;\n    }\n    draining = false;\n    if (currentQueue.length) {\n        queue = currentQueue.concat(queue);\n    } else {\n        queueIndex = -1;\n    }\n    if (queue.length) {\n        drainQueue();\n    }\n}\n\nfunction drainQueue() {\n    if (draining) {\n        return;\n    }\n    var timeout = runTimeout(cleanUpNextTick);\n    draining = true;\n\n    var len = queue.length;\n    while(len) {\n        currentQueue = queue;\n        queue = [];\n        while (++queueIndex < len) {\n            if (currentQueue) {\n                currentQueue[queueIndex].run();\n            }\n        }\n        queueIndex = -1;\n        len = queue.length;\n    }\n    currentQueue = null;\n    draining = false;\n    runClearTimeout(timeout);\n}\n\nprocess.nextTick = function (fun) {\n    var args = new Array(arguments.length - 1);\n    if (arguments.length > 1) {\n        for (var i = 1; i < arguments.length; i++) {\n            args[i - 1] = arguments[i];\n        }\n    }\n    queue.push(new Item(fun, args));\n    if (queue.length === 1 && !draining) {\n        runTimeout(drainQueue);\n    }\n};\n\n// v8 likes predictible objects\nfunction Item(fun, array) {\n    this.fun = fun;\n    this.array = array;\n}\nItem.prototype.run = function () {\n    this.fun.apply(null, this.array);\n};\nprocess.title = 'browser';\nprocess.browser = true;\nprocess.env = {};\nprocess.argv = [];\nprocess.version = ''; // empty string to avoid regexp issues\nprocess.versions = {};\n\nfunction noop() {}\n\nprocess.on = noop;\nprocess.addListener = noop;\nprocess.once = noop;\nprocess.off = noop;\nprocess.removeListener = noop;\nprocess.removeAllListeners = noop;\nprocess.emit = noop;\nprocess.prependListener = noop;\nprocess.prependOnceListener = noop;\n\nprocess.listeners = function (name) { return [] }\n\nprocess.binding = function (name) {\n    throw new Error('process.binding is not supported');\n};\n\nprocess.cwd = function () { return '/' };\nprocess.chdir = function (dir) {\n    throw new Error('process.chdir is not supported');\n};\nprocess.umask = function() { return 0; };\n"
+    },
+    {
+      "id": "./src/client/adapter.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/adapter.ts",
+      "name": "./src/client/adapter.ts",
+      "index": 2,
+      "index2": 0,
+      "size": 220,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+      "issuerId": "./src/client/entry.ts",
+      "issuerName": "./src/client/entry.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        }
+      ],
+      "profile": {
+        "factory": 14,
+        "building": 319,
+        "dependencies": 1
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "./adapter",
+          "loc": "4:16-36"
+        },
+        {
+          "moduleId": "./src/client/client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/client.ts",
+          "module": "./src/client/client.ts",
+          "moduleName": "./src/client/client.ts",
+          "type": "cjs require",
+          "userRequest": "./adapter",
+          "loc": "4:16-36"
+        },
+        {
+          "moduleId": "./src/client/entry.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "module": "./src/client/entry.ts",
+          "moduleName": "./src/client/entry.ts",
+          "type": "cjs require",
+          "userRequest": "./adapter",
+          "loc": "5:16-36"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 1,
+      "source": "\"use strict\";\nexports.__esModule = true;\nvar adapter;\nexports[\"default\"] = {\n    debug: true,\n    set: function (newAdapter) {\n        adapter = newAdapter;\n    },\n    get: function () {\n        return adapter;\n    }\n};\n"
+    },
+    {
+      "id": "./src/client/bb-client.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+      "name": "./src/client/bb-client.ts",
+      "index": 3,
+      "index2": 6,
+      "size": 17969,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+      "issuerId": "./src/client/entry.ts",
+      "issuerName": "./src/client/entry.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        }
+      ],
+      "profile": {
+        "factory": 14,
+        "building": 319,
+        "dependencies": 1
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/entry.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "module": "./src/client/entry.ts",
+          "moduleName": "./src/client/entry.ts",
+          "type": "cjs require",
+          "userRequest": "./bb-client",
+          "loc": "4:18-40"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 1,
+      "source": "\"use strict\";\nexports.__esModule = true;\nvar jsonwebtoken_1 = require(\"jsonwebtoken\");\nvar adapter_1 = require(\"./adapter\");\nvar client_1 = require(\"./client\");\nvar guid_1 = require(\"./guid\");\nvar utils_1 = require(\"./utils\");\nvar BBClient = {\n    debug: true,\n    settings: {\n        // Replaces the browser's current URL\n        // using window.history.replaceState API.\n        // Default to true\n        replaceBrowserHistory: true,\n        // When set to true, this variable will fully utilize\n        // HTML5 sessionStorage API.\n        // Default to true\n        // This variable can be overriden to false by setting\n        // FHIR.oauth2.settings.fullSessionStorageSupport = false.\n        // When set to false, the sessionStorage will be keyed\n        // by a state variable. This is to allow the embedded IE browser\n        // instances instantiated on a single thread to continue to\n        // function without having sessionStorage data shared\n        // across the embedded IE instances.\n        fullSessionStorageSupport: true\n    },\n    resolveAuthType: function (fhirServiceUrl, callback, errback) {\n        adapter_1[\"default\"].get().http({\n            method: \"GET\",\n            url: utils_1.stripTrailingSlash(fhirServiceUrl) + \"/metadata\"\n        }).then(function (r) {\n            var type = \"none\";\n            try {\n                if (r.rest[0].security.service[0].coding[0].code.toLowerCase() === \"smart-on-fhir\") {\n                    type = \"oauth2\";\n                }\n            }\n            catch (err) {\n                // ignore\n            }\n            if (callback) {\n                callback(type);\n            }\n        }, function () {\n            if (errback) {\n                errback(\"Unable to fetch conformance statement\");\n            }\n        });\n    }\n};\nexports[\"default\"] = BBClient;\n/**\n * Get the previous token stored in sessionStorage\n * based on fullSessionStorageSupport flag.\n * @return object JSON tokenResponse\n */\nfunction getPreviousToken() {\n    if (BBClient.settings.fullSessionStorageSupport) {\n        return JSON.parse(sessionStorage.tokenResponse);\n    }\n    else {\n        var state = utils_1.urlParam(\"state\");\n        return JSON.parse(sessionStorage[state]).tokenResponse;\n    }\n}\nfunction completeTokenFlow(hash) {\n    if (hash === void 0) { hash = location.hash; }\n    var ret = adapter_1[\"default\"].get().defer();\n    setTimeout(function () {\n        var oauthResult = hash.match(/#(.*)/);\n        oauthResult = oauthResult ? oauthResult[1] : \"\";\n        oauthResult = oauthResult.split(/&/);\n        var authorization = {};\n        for (var _i = 0, oauthResult_1 = oauthResult; _i < oauthResult_1.length; _i++) {\n            var pair = oauthResult_1[_i];\n            var kv = pair.split(/=/);\n            if (kv[0].length > 0 && kv[1]) {\n                authorization[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);\n            }\n        }\n        ret.resolve(authorization);\n    }, 0);\n    return ret.promise;\n}\nfunction completeCodeFlow(params) {\n    if (!params) {\n        params = {\n            code: utils_1.urlParam(\"code\"),\n            state: utils_1.urlParam(\"state\")\n        };\n    }\n    var ret = adapter_1[\"default\"].get().defer();\n    var state = JSON.parse(sessionStorage[params.state]);\n    if (window.history.replaceState && BBClient.settings.replaceBrowserHistory) {\n        window.history.replaceState({}, \"\", window.location.toString().replace(window.location.search, \"\"));\n    }\n    // Using window.history.pushState to append state to the query param.\n    // This will allow session data to be retrieved via the state param.\n    if (window.history.pushState && !BBClient.settings.fullSessionStorageSupport) {\n        var queryParam = window.location.search;\n        if (window.location.search.indexOf(\"state\") == -1) {\n            // Append state query param to URI for later.\n            // state query param will be used to look up\n            // token response upon page reload.\n            queryParam += (window.location.search ? \"&\" : \"?\");\n            queryParam += \"state=\" + params.state;\n            var url = window.location.protocol + \"//\" +\n                window.location.host +\n                window.location.pathname +\n                queryParam;\n            window.history.pushState({}, \"\", url);\n        }\n    }\n    var data = {\n        code: params.code,\n        grant_type: \"authorization_code\",\n        redirect_uri: state.client.redirect_uri\n    };\n    var headers = {};\n    if (state.client.secret) {\n        headers[\"Authorization\"] = \"Basic \" + btoa(state.client.client_id + \":\" + state.client.secret);\n    }\n    else {\n        data[\"client_id\"] = state.client.client_id;\n    }\n    adapter_1[\"default\"].get().http({\n        method: \"POST\",\n        url: state.provider.oauth2.token_uri,\n        data: data,\n        headers: headers\n    }).then(function (authz) {\n        for (var i in params) {\n            if (params.hasOwnProperty(i)) {\n                authz[i] = params[i];\n            }\n        }\n        ret.resolve(authz);\n    }, function () {\n        var args = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            args[_i] = arguments[_i];\n        }\n        console.log.apply(console, [\"failed to exchange code for access_token\"].concat(args));\n        ret.reject();\n    });\n    return ret.promise;\n}\n/**\n * This code is needed for the page refresh/reload workflow.\n * When the access token is nearing expriration or is expired,\n * this function will make an ajax POST call to obtain a new\n * access token using the current refresh token.\n * @return promise object\n */\nfunction completeTokenRefreshFlow() {\n    var ret = adapter_1[\"default\"].get().defer();\n    var tokenResponse = getPreviousToken();\n    var state = JSON.parse(sessionStorage[tokenResponse.state]);\n    var refresh_token = tokenResponse.refresh_token;\n    adapter_1[\"default\"].get().http({\n        method: 'POST',\n        url: state.provider.oauth2.token_uri,\n        data: {\n            grant_type: 'refresh_token',\n            refresh_token: refresh_token\n        }\n    }).then(function (authz) {\n        authz = $.extend(tokenResponse, authz);\n        ret.resolve(authz);\n    }, function () {\n        console.warn('Failed to exchange refresh_token for access_token', arguments);\n        ret.reject('Failed to exchange refresh token for access token. ' +\n            'Please close and re-launch the application again.');\n    });\n    return ret.promise;\n}\nfunction completePageReload() {\n    var d = adapter_1[\"default\"].get().defer();\n    process.nextTick(function () {\n        d.resolve(getPreviousToken());\n    });\n    return d;\n}\nfunction readyArgs() {\n    var input = null;\n    var callback = function () { };\n    var errback = function () { };\n    if (arguments.length === 0) {\n        throw \"Can't call 'ready' without arguments\";\n    }\n    else if (arguments.length === 1) {\n        callback = arguments[0];\n    }\n    else if (arguments.length === 2) {\n        if (typeof arguments[0] === 'function') {\n            callback = arguments[0];\n            errback = arguments[1];\n        }\n        else if (typeof arguments[0] === 'object') {\n            input = arguments[0];\n            callback = arguments[1];\n        }\n        else {\n            throw \"ready called with invalid arguments\";\n        }\n    }\n    else if (arguments.length === 3) {\n        input = arguments[0];\n        callback = arguments[1];\n        errback = arguments[2];\n    }\n    else {\n        throw \"ready called with invalid arguments\";\n    }\n    return {\n        input: input,\n        callback: callback,\n        errback: errback\n    };\n}\n/**\n * Check the tokenResponse object to see if it is valid or not.\n * This is to handle the case of a refresh/reload of the page\n * after the token was already obtain.\n * @return boolean\n */\nfunction validTokenResponse() {\n    if (BBClient.settings.fullSessionStorageSupport && sessionStorage.tokenResponse) {\n        return true;\n    }\n    else {\n        if (!BBClient.settings.fullSessionStorageSupport) {\n            var state = utils_1.urlParam(\"state\") || (args.input && args.input.state);\n            return (state && sessionStorage[state] && JSON.parse(sessionStorage[state]).tokenResponse);\n        }\n    }\n    return false;\n}\nfunction isFakeOAuthToken() {\n    if (validTokenResponse()) {\n        var token = getPreviousToken();\n        if (token && token.state) {\n            var state = JSON.parse(sessionStorage[token.state]);\n            return state.fake_token_response;\n        }\n    }\n    return false;\n}\nBBClient.ready = function (input, callback, errback) {\n    var args = readyArgs.apply(this, arguments);\n    // decide between token flow (implicit grant) and code flow (authorization code grant)\n    var isCode = utils_1.urlParam(\"code\") || (args.input && args.input.code);\n    var accessTokenResolver = null;\n    if (isFakeOAuthToken()) {\n        accessTokenResolver = completePageReload();\n        // In order to remove the state query parameter in the URL, both replaceBrowserHistory\n        // and fullSessionStorageSupport setting flags must be set to true. This allows querying the state\n        // through sessionStorage. If the browser does not support the replaceState method for the History Web API,\n        // or if either of the setting flags are false, the state property will be retrieved\n        // from the state query parameter in the URL.\n        if (window.history.replaceState\n            && BBClient.settings.replaceBrowserHistory\n            && BBClient.settings.fullSessionStorageSupport) {\n            window.history.replaceState({}, \"\", window.location.toString().replace(window.location.search, \"\"));\n        }\n    }\n    else {\n        if (validTokenResponse()) { // we're reloading after successful completion\n            // Check if 2 minutes from access token expiration timestamp\n            var tokenResponse = getPreviousToken();\n            var payloadCheck = jsonwebtoken_1.decode(tokenResponse.access_token);\n            var nearExpTime = Math.floor(Date.now() / 1000) >= (payloadCheck[\"exp\"] - 120);\n            if (tokenResponse.refresh_token\n                && tokenResponse.scope.indexOf(\"online_access\") > -1\n                && nearExpTime) { // refresh token flow\n                accessTokenResolver = completeTokenRefreshFlow();\n            }\n            else { // existing access token flow\n                accessTokenResolver = completePageReload();\n            }\n        }\n        else if (isCode) { // code flow\n            accessTokenResolver = completeCodeFlow(args.input);\n        }\n        else { // token flow\n            accessTokenResolver = completeTokenFlow(args.input);\n        }\n    }\n    accessTokenResolver.done(function (tokenResponse) {\n        if (!tokenResponse || !tokenResponse.state) {\n            return args.errback(\"No 'state' parameter found in authorization response.\");\n        }\n        // Save the tokenReponse object into sessionStorage\n        if (BBClient.settings.fullSessionStorageSupport) {\n            sessionStorage.tokenResponse = JSON.stringify(tokenResponse);\n        }\n        else {\n            //Save the tokenResponse object and the state into sessionStorage keyed by state\n            var combinedObject = $.extend(true, JSON.parse(sessionStorage[tokenResponse.state]), { 'tokenResponse': tokenResponse });\n            sessionStorage[tokenResponse.state] = JSON.stringify(combinedObject);\n        }\n        var state = JSON.parse(sessionStorage[tokenResponse.state]);\n        if (state.fake_token_response) {\n            tokenResponse = state.fake_token_response;\n        }\n        var fhirClientParams = {\n            serviceUrl: state.provider.url,\n            patientId: tokenResponse.patient\n        };\n        if (tokenResponse.id_token) {\n            var id_token = tokenResponse.id_token;\n            var payload = jsonwebtoken_1.decode(id_token);\n            fhirClientParams[\"userId\"] = payload[\"profile\"];\n        }\n        if (tokenResponse.access_token !== undefined) {\n            fhirClientParams.auth = {\n                type: 'bearer',\n                token: tokenResponse.access_token\n            };\n        }\n        else if (!state.fake_token_response) {\n            return args.errback(\"Failed to obtain access token.\");\n        }\n        var ret = client_1[\"default\"](fhirClientParams);\n        ret.state = JSON.parse(JSON.stringify(state));\n        ret.tokenResponse = JSON.parse(JSON.stringify(tokenResponse));\n        args.callback(ret);\n    }).fail(function (ret) {\n        ret ? args.errback(ret) : args.errback(\"Failed to obtain access token.\");\n    });\n};\nfunction providers(fhirServiceUrl, provider, callback, errback) {\n    // Shim for pre-OAuth2 launch parameters\n    if (isBypassOAuth()) {\n        process.nextTick(function () {\n            bypassOAuth(fhirServiceUrl, callback);\n        });\n        return;\n    }\n    // Skip conformance statement introspection when overriding provider setting are available\n    if (provider) {\n        provider['url'] = fhirServiceUrl;\n        process.nextTick(function () {\n            callback && callback(provider);\n        });\n        return;\n    }\n    adapter_1[\"default\"].get().http({\n        method: \"GET\",\n        url: utils_1.stripTrailingSlash(fhirServiceUrl) + \"/metadata\"\n    }).then(function (r) {\n        var res = {\n            \"name\": \"SMART on FHIR Testing Server\",\n            \"description\": \"Dev server for SMART on FHIR\",\n            \"url\": fhirServiceUrl,\n            \"oauth2\": {\n                \"registration_uri\": null,\n                \"authorize_uri\": null,\n                \"token_uri\": null\n            }\n        };\n        try {\n            var smartExtension = r.rest[0].security.extension.filter(function (e) {\n                return (e.url === \"http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris\");\n            });\n            smartExtension[0].extension.forEach(function (arg, index, array) {\n                if (arg.url === \"register\") {\n                    res.oauth2.registration_uri = arg.valueUri;\n                }\n                else if (arg.url === \"authorize\") {\n                    res.oauth2.authorize_uri = arg.valueUri;\n                }\n                else if (arg.url === \"token\") {\n                    res.oauth2.token_uri = arg.valueUri;\n                }\n            });\n        }\n        catch (err) {\n            return errback && errback(err);\n        }\n        callback && callback(res);\n    }, function () {\n        errback && errback(\"Unable to fetch conformance statement\");\n    });\n}\nvar noAuthFhirProvider = function (serviceUrl) {\n    return {\n        \"oauth2\": null,\n        \"url\": serviceUrl\n    };\n};\nfunction isBypassOAuth() {\n    return (utils_1.urlParam(\"fhirServiceUrl\") && !(utils_1.urlParam(\"iss\")));\n}\nfunction bypassOAuth(fhirServiceUrl, callback) {\n    callback && callback({\n        \"oauth2\": null,\n        \"url\": fhirServiceUrl || utils_1.urlParam(\"fhirServiceUrl\")\n    });\n}\nBBClient.authorize = function (params, errback) {\n    if (!errback) {\n        errback = function () {\n            console.log(\"Failed to discover authorization URL given\", params);\n        };\n    }\n    // prevent inheritance of tokenResponse from parent window\n    delete sessionStorage.tokenResponse;\n    if (!params.client) {\n        params = {\n            client: params\n        };\n    }\n    if (!params.response_type) {\n        params.response_type = \"code\";\n    }\n    if (!params.client.redirect_uri) {\n        params.client.redirect_uri = utils_1.relative(\"\");\n    }\n    if (!params.client.redirect_uri.match(/:\\/\\//)) {\n        params.client.redirect_uri = utils_1.relative(params.client.redirect_uri);\n    }\n    var launch = utils_1.urlParam(\"launch\");\n    if (launch) {\n        if (!params.client.scope.match(/launch/)) {\n            params.client.scope += \" launch\";\n        }\n        params.client.launch = launch;\n    }\n    var server = utils_1.urlParam(\"iss\") || utils_1.urlParam(\"fhirServiceUrl\");\n    if (server) {\n        if (!params.server) {\n            params.server = server;\n        }\n    }\n    if (utils_1.urlParam(\"patientId\")) {\n        params.fake_token_response = params.fake_token_response || {};\n        params.fake_token_response.patient = utils_1.urlParam(\"patientId\");\n    }\n    providers(params.server, params.provider, function (provider) {\n        params.provider = provider;\n        var state = params.client.state || guid_1[\"default\"].newGuid();\n        var client = params.client;\n        if (params.provider.oauth2 == null) {\n            // Adding state to tokenResponse object\n            if (BBClient.settings.fullSessionStorageSupport) {\n                sessionStorage[state] = JSON.stringify(params);\n                sessionStorage.tokenResponse = JSON.stringify({ state: state });\n            }\n            else {\n                var combinedObject = $.extend(true, params, { \"tokenResponse\": { state: state } });\n                sessionStorage[state] = JSON.stringify(combinedObject);\n            }\n            window.location.href = client.redirect_uri + \"?state=\" + encodeURIComponent(state);\n            return;\n        }\n        sessionStorage[state] = JSON.stringify(params);\n        console.log(\"sending client reg\", params.client);\n        var redirectTo = params.provider.oauth2.authorize_uri + \"?\" +\n            \"client_id=\" + encodeURIComponent(client.client_id) + \"&\" +\n            \"response_type=\" + encodeURIComponent(params.response_type) + \"&\" +\n            \"scope=\" + encodeURIComponent(client.scope) + \"&\" +\n            \"redirect_uri=\" + encodeURIComponent(client.redirect_uri) + \"&\" +\n            \"state=\" + encodeURIComponent(state) + \"&\" +\n            \"aud=\" + encodeURIComponent(params.server);\n        if (typeof client.launch !== \"undefined\" && client.launch) {\n            redirectTo += \"&launch=\" + encodeURIComponent(client.launch);\n        }\n        window.location.href = redirectTo;\n    }, errback);\n};\n"
+    },
+    {
+      "id": "./src/client/client.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/client.ts",
+      "name": "./src/client/client.ts",
+      "index": 1,
+      "index2": 1,
+      "size": 6066,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+      "issuerId": "./src/client/entry.ts",
+      "issuerName": "./src/client/entry.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        }
+      ],
+      "profile": {
+        "factory": 14,
+        "building": 319,
+        "dependencies": 1
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "./client",
+          "loc": "5:15-34"
+        },
+        {
+          "moduleId": "./src/client/entry.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "module": "./src/client/entry.ts",
+          "moduleName": "./src/client/entry.ts",
+          "type": "cjs require",
+          "userRequest": "./client",
+          "loc": "3:15-34"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 1,
+      "source": "\"use strict\";\nexports.__esModule = true;\n// var btoa = require('btoa');\nvar adapter_1 = require(\"./adapter\");\n// function ClientPrototype() {}\n// var clientUtils = require('./utils');\n// Object.keys(clientUtils).forEach(function(k){\n//   ClientPrototype.prototype[k] = clientUtils[k];\n// });\n// function FhirClient(p) {\n//   // p.serviceUrl\n//   // p.auth {\n//     //    type: 'none' | 'basic' | 'bearer'\n//     //    basic --> username, password\n//     //    bearer --> token\n//     // }\n//     var client = new ClientPrototype();\n//     var fhir = Adapter.get().fhirjs;\n//     var server = client.server = {\n//       serviceUrl: p.serviceUrl,\n//       auth: p.auth || {type: 'none'}\n//     }\n//     var auth = {};\n//     if (server.auth.type === 'basic') {\n//         auth = {\n//             user: server.auth.username,\n//             pass: server.auth.password\n//         };\n//     } else if (server.auth.type === 'bearer') {\n//         auth = {\n//             bearer: server.auth.token\n//         };\n//     }\n//     client.api = fhir({\n//         baseUrl: server.serviceUrl,\n//         auth: auth\n//     });\n//     if (p.patientId) {\n//         client.patient = {};\n//         client.patient.id = p.patientId;\n//         client.patient.api = fhir({\n//             baseUrl: server.serviceUrl,\n//             auth: auth,\n//             patient: p.patientId\n//         });\n//         client.patient.read = function(){\n//             return client.get({resource: 'Patient'});\n//         };\n//     }\n//     var fhirAPI = (client.patient)?client.patient.api:client.api;\n//     client.userId = p.userId;\n//     server.auth = server.auth ||  {\n//       type: 'none'\n//     };\n//     if (!client.server.serviceUrl || !client.server.serviceUrl.match(/https?:\\/\\/.+[^\\/]$/)) {\n//       throw \"Must supply a `server` property whose `serviceUrl` begins with http(s) \" + \n//         \"and does NOT include a trailing slash. E.g. `https://fhir.aws.af.cm/fhir`\";\n//     }\n//     client.authenticated = function(p) {\n//       if (server.auth.type === 'none') {\n//         return p;\n//       }\n//       var h;\n//       if (server.auth.type === 'basic') {\n//         h = \"Basic \" + btoa(server.auth.username + \":\" + server.auth.password);\n//       } else if (server.auth.type === 'bearer') {\n//         h = \"Bearer \" + server.auth.token;\n//       }\n//       if (!p.headers) {p.headers = {};}\n//       p.headers['Authorization'] = h\n//       //p.beforeSend = function (xhr) { xhr.setRequestHeader (\"Authorization\", h); }\n//       return p;\n//     };\n//     client.get = function(p) {\n//         var ret = Adapter.get().defer();\n//         var params = {type: p.resource};\n//         if (p.id) {\n//             params[\"id\"] = p.id;\n//         }\n//         fhirAPI.read(params)\n//             .then(function(res){\n//                 ret.resolve(res.data);\n//             }, function(){\n//                 ret.reject(\"Could not fetch \" + p.resource + \" \" + p.id);\n//             });\n//         return ret.promise;\n//     };\n//     client.user = {\n//       'read': function(){\n//         var userId = client.userId;\n//         resource = userId.split(\"/\")[0];\n//         uid = userId.split(\"/\")[1];\n//         return client.get({resource: resource, id: uid});\n//       }\n//     };\n//     function absolute(path, server) {\n//       if (path.match(/^http/)) return path;\n//       if (path.match(/^urn/)) return path;\n//       // strip leading slash\n//       if (path.charAt(0) == \"/\") path = path.substr(1);\n//       return server.serviceUrl + '/' + path;\n//     }\n//     client.getBinary = function(url) {\n//       var ret = Adapter.get().defer();\n//       Adapter.get().http(client.authenticated({\n//         type: 'GET',\n//         url: url,\n//         dataType: 'blob'\n//       }))\n//       .done(function(blob){\n//         ret.resolve(blob);\n//       })\n//       .fail(function(){\n//         ret.reject(\"Could not fetch \" + url, arguments);\n//       });\n//       return ret.promise;\n//     };\n//     client.fetchBinary = function(path) {\n//         var url = absolute(path, server);\n//         return client.getBinary(url);\n//     };\n//     return client;\n// }\nfunction absolute(path, server) {\n    if (path.match(/^http/)) {\n        return path;\n    }\n    if (path.match(/^urn/)) {\n        return path;\n    }\n    // strip leading slash\n    if (path.charAt(0) == \"/\") {\n        path = path.substr(1);\n    }\n    return server.serviceUrl + \"/\" + path;\n}\nvar FhirClient = /** @class */ (function () {\n    function FhirClient(_a) {\n        var serviceUrl = _a.serviceUrl, auth = _a.auth;\n        this.server = {\n            serviceUrl: serviceUrl,\n            auth: auth || { type: \"none\" }\n        };\n    }\n    FhirClient.prototype.getBinary = function (url) {\n        var ret = adapter_1[\"default\"].get().defer();\n        adapter_1[\"default\"].get().http(this.authenticated({\n            type: \"GET\",\n            url: url,\n            dataType: \"blob\"\n        }))\n            .done(function (blob) { return ret.resolve(blob); })\n            .fail(function () {\n            var args = [];\n            for (var _i = 0; _i < arguments.length; _i++) {\n                args[_i] = arguments[_i];\n            }\n            return ret.reject.apply(ret, [\"Could not fetch \" + url].concat(args));\n        });\n        return ret.promise;\n    };\n    FhirClient.prototype.fetchBinary = function (path) {\n        var url = absolute(path, this.server);\n        return this.getBinary(url);\n    };\n    FhirClient.prototype.authenticated = function (p) {\n        if (this.server.auth.type == \"none\") {\n            return p;\n        }\n        var h;\n        if (this.server.auth.type == \"basic\") {\n            h = \"Basic \" + btoa(this.server.auth.username + \":\" + this.server.auth.password);\n        }\n        else if (this.server.auth.type == \"bearer\") {\n            h = \"Bearer \" + this.server.auth.token;\n        }\n        if (!p.headers) {\n            p.headers = {};\n        }\n        p.headers.Authorization = h;\n        return p;\n    };\n    return FhirClient;\n}());\nexports[\"default\"] = FhirClient;\n"
+    },
+    {
+      "id": "./src/client/entry.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+      "name": "./src/client/entry.ts",
+      "index": 0,
+      "index2": 7,
+      "size": 291,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": null,
+      "issuerId": null,
+      "issuerName": null,
+      "issuerPath": null,
+      "profile": {
+        "factory": 64,
+        "building": 2062
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": null,
+          "moduleIdentifier": null,
+          "module": null,
+          "moduleName": null,
+          "type": "single entry",
+          "userRequest": "./src/client/entry.ts",
+          "loc": "main"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 0,
+      "source": "\"use strict\";\nexports.__esModule = true;\nvar client_1 = require(\"./client\");\nvar bb_client_1 = require(\"./bb-client\");\nvar adapter_1 = require(\"./adapter\");\nwindow.FHIR = {\n    client: client_1[\"default\"],\n    oauth2: bb_client_1[\"default\"]\n};\nexports[\"default\"] = adapter_1[\"default\"].set;\n"
+    },
+    {
+      "id": "./src/client/guid.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/guid.ts",
+      "name": "./src/client/guid.ts",
+      "index": 6,
+      "index2": 4,
+      "size": 1458,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+      "issuerId": "./src/client/bb-client.ts",
+      "issuerName": "./src/client/bb-client.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        },
+        {
+          "id": "./src/client/bb-client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "name": "./src/client/bb-client.ts",
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          }
+        }
+      ],
+      "profile": {
+        "factory": 56,
+        "building": 20
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "./guid",
+          "loc": "6:13-30"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 2,
+      "source": "\"use strict\";\nexports.__esModule = true;\nvar EMPTY = \"00000000-0000-0000-0000-000000000000\";\nfunction _padLeft(paddingString, width, replacementChar) {\n    return paddingString.length >= width ?\n        paddingString :\n        _padLeft(replacementChar + paddingString, width, replacementChar || \" \");\n}\nfunction _s4(num) {\n    var hexadecimalResult = num.toString(16);\n    return _padLeft(hexadecimalResult, 4, \"0\");\n}\nfunction _cryptoGuid() {\n    var buffer = new window.Uint16Array(8);\n    window.crypto.getRandomValues(buffer);\n    return [\n        _s4(buffer[0]) + _s4(buffer[1]),\n        _s4(buffer[2]),\n        _s4(buffer[3]),\n        _s4(buffer[4]),\n        _s4(buffer[5]) + _s4(buffer[6]) + _s4(buffer[7])\n    ].join(\"-\");\n}\nfunction _guid() {\n    var currentDateMilliseconds = new Date().getTime();\n    return \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, function (currentChar) {\n        var randomChar = (currentDateMilliseconds + Math.random() * 16) % 16 | 0;\n        currentDateMilliseconds = Math.floor(currentDateMilliseconds / 16);\n        return (currentChar == \"x\" ? randomChar : (randomChar & 0x7 | 0x8)).toString(16);\n    });\n}\nfunction create() {\n    var hasCrypto = typeof (window.crypto) != \"undefined\", hasRandomValues = hasCrypto && typeof (window.crypto.getRandomValues) != 'undefined';\n    return (hasCrypto && hasRandomValues) ? _cryptoGuid() : _guid();\n}\nexports[\"default\"] = {\n    newGuid: create,\n    empty: EMPTY\n};\n"
+    },
+    {
+      "id": "./src/client/utils.ts",
+      "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/utils.ts",
+      "name": "./src/client/utils.ts",
+      "index": 7,
+      "index2": 5,
+      "size": 3359,
+      "cacheable": true,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+      "issuerId": "./src/client/bb-client.ts",
+      "issuerName": "./src/client/bb-client.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        },
+        {
+          "id": "./src/client/bb-client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "name": "./src/client/bb-client.ts",
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          }
+        }
+      ],
+      "profile": {
+        "factory": 56,
+        "building": 20
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "./utils",
+          "loc": "7:14-32"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 2,
+      "source": "\"use strict\";\nexports.__esModule = true;\nfunction urlParam(p, forceArray) {\n    if (forceArray === void 0) { forceArray = false; }\n    var query = location.search.substr(1);\n    var data = query.split(\"&\");\n    var result = [];\n    for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {\n        var pair = data_1[_i];\n        var _a = pair.split(\"=\"), name_1 = _a[0], value = _a[1];\n        if (name_1 === p) {\n            result.push(decodeURIComponent(value.replace(/\\+/g, \"%20\")));\n        }\n    }\n    if (forceArray) {\n        return result;\n    }\n    if (result.length === 0) {\n        return null;\n    }\n    return result[0];\n}\nexports.urlParam = urlParam;\nfunction stripTrailingSlash(str) {\n    if (str.substr(-1) === \"/\") {\n        return str.substr(0, str.length - 1);\n    }\n    return str;\n}\nexports.stripTrailingSlash = stripTrailingSlash;\nfunction relative(url) {\n    return (location.protocol + \"//\" + location.host + location.pathname).match(/(.*\\/)[^\\/]*/)[1] + url;\n}\nexports.relative = relative;\nfunction byCodes(observations, property) {\n    var bank = byCode(observations, property);\n    function byCodes() {\n        var ret = [];\n        for (var i = 0; i < arguments.length; i++) {\n            var set = bank[arguments[i]];\n            if (set) {\n                [].push.apply(ret, set);\n            }\n        }\n        return ret;\n    }\n    return byCodes;\n}\nexports.byCodes = byCodes;\nfunction byCode(observations, property) {\n    var ret = {};\n    if (!Array.isArray(observations)) {\n        observations = [observations];\n    }\n    observations.forEach(function (o) {\n        if (o.resourceType === \"Observation\") {\n            if (o[property] && Array.isArray(o[property].coding)) {\n                o[property].coding.forEach(function (coding) {\n                    ret[coding.code] = ret[coding.code] || [];\n                    ret[coding.code].push(o);\n                });\n            }\n        }\n    });\n    return ret;\n}\nexports.byCode = byCode;\nfunction ensureNumerical(pq) {\n    if (typeof pq.value !== \"number\") {\n        throw new Error(\"Found a non-numerical unit: \" + pq.value + \" \" + pq.code);\n    }\n}\nexports.units = {\n    cm: function (pq) {\n        ensureNumerical(pq);\n        if (pq.code == \"cm\") {\n            return pq.value;\n        }\n        if (pq.code == \"m\") {\n            return 100 * pq.value;\n        }\n        if (pq.code == \"in\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"[in_us]\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"[in_i]\") {\n            return 2.54 * pq.value;\n        }\n        if (pq.code == \"ft\") {\n            return 30.48 * pq.value;\n        }\n        if (pq.code == \"[ft_us]\") {\n            return 30.48 * pq.value;\n        }\n        throw new Error(\"Unrecognized length unit: \" + pq.code);\n    },\n    kg: function (pq) {\n        ensureNumerical(pq);\n        if (pq.code == \"kg\") {\n            return pq.value;\n        }\n        if (pq.code == \"g\") {\n            return pq.value / 1000;\n        }\n        if (pq.code.match(/lb/)) {\n            return pq.value / 2.20462;\n        }\n        if (pq.code.match(/oz/)) {\n            return pq.value / 35.274;\n        }\n        throw new Error(\"Unrecognized weight unit: \" + pq.code);\n    },\n    any: function (pq) {\n        ensureNumerical(pq);\n        return pq.value;\n    }\n};\n"
+    },
+    {
+      "id": "jsonwebtoken",
+      "identifier": "external \"jsonwebtoken\"",
+      "name": "external \"jsonwebtoken\"",
+      "index": 5,
+      "index2": 3,
+      "size": 42,
+      "built": true,
+      "optional": false,
+      "prefetched": false,
+      "chunks": [
+        "main"
+      ],
+      "issuer": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+      "issuerId": "./src/client/bb-client.ts",
+      "issuerName": "./src/client/bb-client.ts",
+      "issuerPath": [
+        {
+          "id": "./src/client/entry.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/entry.ts",
+          "name": "./src/client/entry.ts",
+          "profile": {
+            "factory": 64,
+            "building": 2062
+          }
+        },
+        {
+          "id": "./src/client/bb-client.ts",
+          "identifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "name": "./src/client/bb-client.ts",
+          "profile": {
+            "factory": 14,
+            "building": 319,
+            "dependencies": 1
+          }
+        }
+      ],
+      "profile": {
+        "factory": 56,
+        "building": 20
+      },
+      "failed": false,
+      "errors": 0,
+      "warnings": 0,
+      "assets": [],
+      "reasons": [
+        {
+          "moduleId": "./src/client/bb-client.ts",
+          "moduleIdentifier": "/home/vlad/Dev/client-ts/node_modules/awesome-typescript-loader/dist/entry.js??ref--4!/home/vlad/Dev/client-ts/src/client/bb-client.ts",
+          "module": "./src/client/bb-client.ts",
+          "moduleName": "./src/client/bb-client.ts",
+          "type": "cjs require",
+          "userRequest": "jsonwebtoken",
+          "loc": "3:21-44"
+        }
+      ],
+      "providedExports": null,
+      "optimizationBailout": [],
+      "depth": 2
+    }
+  ],
+  "filteredModules": 0,
+  "children": []
+}
