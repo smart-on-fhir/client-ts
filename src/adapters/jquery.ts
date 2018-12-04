@@ -3,9 +3,18 @@ import Adapter from "../adapter";
 import "../index";
 
 
-interface Window {
+// interface ExtendedGlobal extends NodeJS.Global {
+//     document: any;
+//     sessionStorage: any;
+// }
+
+interface ExtendedWindow extends Window {
     FormData: any;
     ArrayBuffer: any;
+}
+
+interface PlainObject {
+    [key: string]: any;
 }
 
 
@@ -28,12 +37,13 @@ const jquery = jQuery;
  * otherwise jquery will try (and fail) to convert the blob or buffer into a query string.
  */
 jQuery.ajaxTransport("+*", (options, originalOptions, jqXHR) => {
+    const win = window as ExtendedWindow;
     // Test for the conditions that mean we can/want to send/receive blobs or ArrayBuffers - we need XMLHttpRequest
     // level 2 (so feature-detect against window.FormData), feature detect against window.Blob or window.ArrayBuffer,
     // and then check to see if the dataType is blob/ArrayBuffer or the data itself is a Blob/ArrayBuffer
-    if (window.FormData && ((options.dataType && (options.dataType === "blob" || options.dataType === "arraybuffer")) ||
-        (options.data && ((window.Blob && options.data instanceof Blob) ||
-            (window.ArrayBuffer && options.data instanceof ArrayBuffer)))
+    if (win.FormData && ((options.dataType && (options.dataType === "blob" || options.dataType === "arraybuffer")) ||
+        (options.data && ((win.Blob && options.data instanceof Blob) ||
+            (win.ArrayBuffer && options.data instanceof ArrayBuffer)))
         ))
     {
         return {
@@ -46,20 +56,19 @@ jQuery.ajaxTransport("+*", (options, originalOptions, jqXHR) => {
              * @param completeCallback
              */
             send(headers, completeCallback) {
-                var xhr      = new XMLHttpRequest(),
-                    url      = options.url || window.location.href,
-                    type     = options.type || "GET",
-                    dataType = options.dataType || "text",
-                    data     = options.data || null,
-                    async    = options.async || true,
-                    key;
+                const xhr      = new XMLHttpRequest(),
+                      url      = options.url      || win.location.href,
+                      type     = options.type     || "GET",
+                      dataType = options.dataType || "text",
+                      data     = options.data     || null,
+                      async    = options.async    || true;
+
+                let key;
 
                 xhr.addEventListener("load", () => {
-                    var response = {}, status, isSuccess;
+                    const response: PlainObject = {};
 
-                    isSuccess = xhr.status >= 200 && (xhr.status < 300 || xhr.status === 304);
-
-                    if (isSuccess) {
+                    if (xhr.status >= 200 && (xhr.status < 300 || xhr.status === 304)) {
                         response[dataType] = xhr.response;
                     } else {
                         // In case an error occurred we assume that the response body contains
@@ -68,18 +77,18 @@ jQuery.ajaxTransport("+*", (options, originalOptions, jqXHR) => {
                         response.text = String.fromCharCode.apply(null, new Uint8Array(xhr.response));
                     }
 
-                    completeCallback(xhr.status, xhr.statusText, response, xhr.getAllResponseHeaders());
+                    completeCallback(xhr.status, xhr.statusText as JQuery.Ajax.TextStatus, response, xhr.getAllResponseHeaders());
                 });
 
                 xhr.open(type, url, async);
-                xhr.responseType = dataType;
+                xhr.responseType = dataType as XMLHttpRequestResponseType;
 
                 for (key in headers) {
                     if (headers.hasOwnProperty(key)) {
                         xhr.setRequestHeader(key, headers[key]);
                     }
                 }
-                xhr.send(data);
+                xhr.send(data as Blob);
             },
             abort(){
                 jqXHR.abort();

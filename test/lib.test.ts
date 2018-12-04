@@ -7,8 +7,23 @@ const lab = Lab.script();
 const { describe, it } = lab;
 export { lab };
 
+interface ExtendedGlobal extends NodeJS.Global {
+    document: any;
+}
 
 describe("lib", () => {
+
+    beforeEach(() => {
+        const dom = new JSDOM(``, {
+            url: "http://localhost/a/b/c",
+        });
+
+        (global as ExtendedGlobal).document = dom.window.document;
+    });
+
+    afterEach(() => {
+        delete (global as ExtendedGlobal).document;
+    });
 
     describe("getPath", () => {
         it ("returns the first arg if no path", () => {

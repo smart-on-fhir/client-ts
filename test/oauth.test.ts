@@ -7,6 +7,11 @@ import { FhirClient } from "..";
 import { urlParam }   from "../src/lib";
 
 
+interface ExtendedGlobal extends NodeJS.Global {
+    document: any;
+    sessionStorage: any;
+}
+
 const lab = Lab.script();
 const { describe, it, beforeEach, afterEach } = lab;
 export { lab };
@@ -61,6 +66,12 @@ describe("oauth", () => {
                 return { ..._data };
             }
         };
+
+        const dom = new JSDOM(``, {
+            url: "http://localhost/a/b/c",
+        });
+
+        (global as ExtendedGlobal).document = dom.window.document;
     });
 
     afterEach(() => {

@@ -62,8 +62,8 @@
   // ],
   "exclude": [
     "src/trash/"
-  ],
-  "include": [
-    "src/"
-  ]
+  ]//,
+  // "include": [
+  //   "src/", "../leap-bulk-data-server/src/ResourceLoader.ts"
+  // ]
 }
