@@ -2,7 +2,6 @@ import "isomorphic-fetch";
 import * as Lab                    from "lab";
 import { expect }                  from "code";
 import * as oauth                  from "../src/oauth";
-import Adapter                     from "../src/adapter";
 import * as request                from "request";
 import { FhirClient, fhir }        from "..";
 import { urlParam, urlToAbsolute } from "../src/lib";
@@ -13,6 +12,7 @@ interface ExtendedGlobal extends NodeJS.Global {
     document: any;
     sessionStorage: any;
     location: Location;
+    btoa: (str: string) => string;
 }
 
 const lab = Lab.script();
@@ -89,12 +89,16 @@ describe("oauth", () => {
 
         (global as ExtendedGlobal).document = dom.window.document;
         (global as ExtendedGlobal).location = dom.window.location;
+        (global as ExtendedGlobal).btoa = str => {
+            return Buffer.from(str).toString("base64");
+        };
     });
 
     afterEach(() => {
         delete (global as ExtendedGlobal).sessionStorage;
         delete (global as ExtendedGlobal).document;
         delete (global as ExtendedGlobal).location;
+        delete (global as ExtendedGlobal).btoa;
     });
 
     describe("fetchConformanceStatement", () => {

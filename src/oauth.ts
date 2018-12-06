@@ -1,5 +1,5 @@
 import { FhirClient as NS, FhirClient, fhir }  from "..";
-import { btoa }                                from "Base64";
+// import { btoa }                                from "Base64";
 import Client                                  from "./Client";
 import {
     urlParam,

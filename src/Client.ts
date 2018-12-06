@@ -1,5 +1,4 @@
 import { FhirClient as NS } from "..";
-import { FetchOptions } from "jsdom";
 // import Adapter              from "./adapter";
 // import makeFhir             from "fhir.js";
 // import makeFhir             from "fhir.js/src/fhir.js";
