@@ -42,7 +42,7 @@ module.exports = {
     // dependencies, which allows browsers to cache those libraries between builds.
     externals: {
         "jsonwebtoken": "jsonwebtoken",
-        "jquery": "jQuery"
+        "jquery"      : "jQuery"
     },
 
     plugins: [

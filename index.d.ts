@@ -1,4 +1,10 @@
 
+declare global {
+    interface Window {
+        FHIR: any;
+    }
+}
+
 export namespace FhirClient {
 
     /**

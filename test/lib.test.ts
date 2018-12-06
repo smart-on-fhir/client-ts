@@ -1,28 +1,30 @@
 import * as Lab   from "lab";
 import { expect } from "code";
-import * as lib from "../src/lib";
+import { JSDOM }  from "jsdom";
+import * as lib   from "../src/lib";
 
+const LOCATION = "http://localhost/a/b/c?_dummyName=_dummyValue";
 
 const lab = Lab.script();
-const { describe, it } = lab;
+const { describe, it, beforeEach, afterEach } = lab;
 export { lab };
 
 interface ExtendedGlobal extends NodeJS.Global {
     document: any;
+    location: Location;
 }
 
 describe("lib", () => {
 
     beforeEach(() => {
-        const dom = new JSDOM(``, {
-            url: "http://localhost/a/b/c",
-        });
-
+        const dom = new JSDOM(``, { url: LOCATION });
         (global as ExtendedGlobal).document = dom.window.document;
+        (global as ExtendedGlobal).location = dom.window.location;
     });
 
     afterEach(() => {
         delete (global as ExtendedGlobal).document;
+        delete (global as ExtendedGlobal).location;
     });
 
     describe("getPath", () => {
@@ -42,21 +44,24 @@ describe("lib", () => {
     });
 
     describe("urlParam", () => {
+        it ("works with the global location", () => {
+            expect(lib.urlParam("_dummyName")).to.equal("_dummyValue");
+        });
         it ("returns null for missing params", () => {
-            const loc =  { search: "" } as Location;
-            expect(lib.urlParam(loc, "x")).to.equal(null);
+            const location =  { search: "" } as Location;
+            expect(lib.urlParam("x", { location })).to.equal(null);
         });
         it ("returns the first occurrence for single param", () => {
-            const loc =  { search: "?x=y" } as Location;
-            expect(lib.urlParam(loc, "x")).to.equal("y");
+            const location =  { search: "?x=y" } as Location;
+            expect(lib.urlParam("x", { location })).to.equal("y");
         });
         it ("returns the first occurrence for multiple params", () => {
-            const loc =  { search: "?x=1&x=2&y=3" } as Location;
-            expect(lib.urlParam(loc, "x")).to.equal("1");
+            const location =  { search: "?x=1&x=2&y=3" } as Location;
+            expect(lib.urlParam("x", { location })).to.equal("1");
         });
-        it ("returns and array for multi-params and true as second argument", () => {
-            const loc =  { search: "?x=1&x=2&y=3" } as Location;
-            expect(lib.urlParam(loc, "x", true)).to.equal(["1", "2"]);
+        it ("returns and array for multi-params when forceArray = true", () => {
+            const location =  { search: "?x=1&x=2&y=3" } as Location;
+            expect(lib.urlParam("x", { location, forceArray: true })).to.equal(["1", "2"]);
         });
     });
 
@@ -85,31 +90,36 @@ describe("lib", () => {
 
     describe("urlToAbsolute", () => {
 
-        const loc =  {
-            protocol: "http:",
-            host    : "localhost",
-            pathname: "/a/b/c"
-        } as Location;
+        const customDoc = new JSDOM(
+            ``,
+            { url: LOCATION.replace(/^http:/, "https:") }
+        ).window.document;
 
         const map = new Map([
-            ["/"        , "http://localhost"        ],
-            ["/x/y/z"   , "http://localhost/x/y/z"  ],
-            [""         , "http://localhost/a/b/"   ],
-            ["."        , "http://localhost/a/b/"   ],
-            [".."       , "http://localhost/a"      ],
-            ["../"      , "http://localhost/a/"     ],
-            ["../.."    , "http://localhost"        ],
-            ["../../"   , "http://localhost"        ],
-            ["../../.." , "http://localhost"        ],
-            ["../../../", "http://localhost"        ],
-            ["../d/e"  , "http://localhost/a/d/e"   ],
-            ["./d/e"   , "http://localhost/a/b/d/e" ],
-            ["d/e"     , "http://localhost/a/b/d/e" ]
+            ["/"        , "http://localhost/"         ],
+            ["/x/y/z"   , "http://localhost/x/y/z"    ],
+            [""         , LOCATION                    ],
+            ["."        , "http://localhost/a/b/"     ],
+            [".."       , "http://localhost/a/"       ],
+            ["../"      , "http://localhost/a/"       ],
+            ["../.."    , "http://localhost/"         ],
+            ["../../"   , "http://localhost/"         ],
+            ["../../.." , "http://localhost/"         ],
+            ["../../../", "http://localhost/"         ],
+            ["../d/e"   , "http://localhost/a/d/e"    ],
+            ["./d/e"    , "http://localhost/a/b/d/e"  ],
+            ["d/e"      , "http://localhost/a/b/d/e"  ],
+            ["?x=y"     , "http://localhost/a/b/c?x=y"],
+            ["//x/y/z"  , "http://x/y/z"              ]
         ]);
 
         map.forEach((value, key) => {
             it (`from "http://localhost/a/b/c" to "${key}" should produce "${value}"`, () => {
-            expect(lib.urlToAbsolute(key, loc)).to.equal(value);
+                expect(lib.urlToAbsolute(key/*, loc*/)).to.equal(value);
+            });
+
+            it (`from custom document to "${key}" should produce "${value}"`, () => {
+                expect(lib.urlToAbsolute(key, customDoc)).to.equal(value.replace(/^http:/, "https:"));
             });
         });
     });
@@ -138,43 +148,5 @@ describe("lib", () => {
             expect(lib.randomString(16, "xy")).to.match(/^[xy]{16}$/);
         });
     });
-
-    // describe("getSecurityExtensions", { timeout: 15000 }, () => {
-    //     it ("Works without arguments", async() => {
-    //         const extensions = await lib.getSecurityExtensions();
-    //         expect(extensions).to.equal({
-    //             registrationUri : "",
-    //             authorizeUri    : "",
-    //             tokenUri        : ""
-    //         })
-    //     });
-
-    //     it ("Works with HSPC", { timeout: 5000 }, async() => {
-    //         const extensions = await lib.getSecurityExtensions("https://api-stu3.hspconsortium.org/STU301withSynthea/data");
-    //         expect(extensions).to.equal({
-    //             registrationUri : "https://auth.hspconsortium.org/register",
-    //             authorizeUri    : "https://auth.hspconsortium.org/authorize",
-    //             tokenUri        : "https://auth.hspconsortium.org/token"
-    //         });
-    //     });
-
-    //     it ("Works with R3 - Protected", async() => {
-    //         const extensions = await lib.getSecurityExtensions("http://launch.smarthealthit.org/v/r3/sim/eyJhIjoiMSJ9/fhir");
-    //         expect(extensions).to.equal({
-    //             registrationUri : "",
-    //             authorizeUri    : "http://launch.smarthealthit.org/v/r3/sim/eyJhIjoiMSJ9/auth/authorize",
-    //             tokenUri        : "http://launch.smarthealthit.org/v/r3/sim/eyJhIjoiMSJ9/auth/token"
-    //         });
-    //     });
-
-    //     it ("Works with R3 - Open", async() => {
-    //         const extensions = await lib.getSecurityExtensions("http://r3.smarthealthit.org");
-    //         expect(extensions).to.equal({
-    //             registrationUri : "",
-    //             authorizeUri    : "",
-    //             tokenUri        : ""
-    //         });
-    //     });
-    // });
 
 });
