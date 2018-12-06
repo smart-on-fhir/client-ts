@@ -27,23 +27,25 @@ export function getPath(obj: object|any[], path: string = ""): any {
  * multiple times the first value will be returned, unless `forceArray` is true
  * (then you get an array of values). If the parameter is not present, `null`
  * will be returned.
- * @param location The base location object
  * @param p The name of the parameter
- * @param forceArray If true, return an array if the param is used multiple times
+ * @param options optional, default {}
+ * @param options.location The base location object (defaults to the global location)
+ * @param options.forceArray If true, return an array if the param is used multiple times
  */
-export function urlParam({ search }: Location, p: string, forceArray: boolean = false): string | string[] | null {
-    const query  = search.substr(1);
+export function urlParam(p: string, options: { forceArray?: boolean, location: Location } = { location }): string | string[] | null {
+    const loc    = options.location;
+    const query  = loc.search.substr(1);
     const data   = query.split("&");
     const result = [];
 
-    for (const pair of data) {
+    data.forEach(pair => {
         const [name, value] = pair.split("=");
         if (name === p) {
             result.push(decodeURIComponent(value.replace(/\+/g, "%20")));
         }
-    }
+    });
 
-    if (forceArray) {
+    if (options.forceArray) {
         return result;
     }
 
@@ -67,55 +69,10 @@ export function stripTrailingSlash(str?: any) {
  * @param url The URL to convert
  * @param location The base location object
  */
-export function urlToAbsolute(url, { protocol, host, pathname }: Location) {
-
-    // root
-    if (url == "/") {
-        return protocol + "//" + host;
-    }
-
-    // rooted paths
-    if (url.charAt(0) == "/") {
-        return protocol + "//" + host + url;
-    }
-
-    const srcSegments = String(pathname || "")
-        .trim()
-        .replace(/^\/$/, "")
-        .split("/");
-
-    // special links to the current dir
-    if (url === "" || url === ".") {
-        if (pathname.charAt(pathname.length - 1) != "/") {
-            srcSegments.pop();
-        }
-        return protocol + "//" + host + srcSegments.join("/") + "/";
-    }
-
-    const dstSegments = url.split("/");
-
-    if (pathname.charAt(pathname.length - 1) != "/") {
-        srcSegments.pop();
-    }
-
-    while (dstSegments.length) {
-        const dst = dstSegments.shift();
-        if (dst == "..") {
-            if (srcSegments.length) {
-                srcSegments.pop();
-            }
-        }
-        else if (dst != ".") {
-            srcSegments.push(dst);
-        }
-    }
-
-    let path = srcSegments.join("/").replace(/\/+/g, "/");
-    if (path == "/") {
-        path = "";
-    }
-
-    return protocol + "//" + host + path;
+export function urlToAbsolute(url, doc: Document = document) {
+    const a = doc.createElement("a");
+    a.setAttribute("href", url);
+    return a.href;
 }
 
 export function randomString(strLength = 8, charSet = null) {

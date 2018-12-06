@@ -10,22 +10,26 @@ import {
 } from "./lib";
 
 
+// $lab:coverage:off$
 function debug(...args) {
-    if (process.env.DEBUG) {
+    if (sessionStorage.debug) {
         console.log(...args);
     }
 }
+// $lab:coverage:on$
 
-export async function fetchConformanceStatement(baseUrl?: string): Promise<fhir.CapabilityStatement> {
-    const url = String(baseUrl || "").replace(/\/*$/, "/") + "metadata";
-    let metadata;
-    try {
-        metadata = await Adapter.get().http({ method: "GET", url });
-    } catch (ex) {
-        console.error(ex);
-        throw new Error(`Failed to fetch the conformance statement from "${url}"`);
+export function fetchConformanceStatement(baseUrl?: string): Promise<fhir.CapabilityStatement> {
+    if (!baseUrl) {
+        baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
     }
-    return metadata.data;
+    const url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
+    return Adapter.get().http({ method: "GET", url }).then(
+        ({ data }) => data,
+        ex => {
+            debug(ex);
+            throw new Error(`Failed to fetch the conformance statement from "${url}"`);
+        }
+    );
 }
 
 /**
@@ -64,11 +68,18 @@ export function getSecurityExtensions(metadata?: fhir.CapabilityStatement): NS.O
  * Calls the buildAuthorizeUrl function to construct the redirect URL and then
  * just redirects to it.
  */
-export async function authorize(location: Location, options: NS.ClientOptions): Promise<any> {
+export function authorize(options: NS.ClientOptions, loc: Location = location): Promise<any> {
     debug(`Authorizing...`);
-    const redirect = await buildAuthorizeUrl(location, options);
-    debug(`Making authorize redirect to ${redirect}`);
-    location.href = redirect;
+    return buildAuthorizeUrl(options, loc)
+    .then(redirect => {
+        debug(`Making authorize redirect to ${redirect}`);
+        try {
+            loc.href = redirect;
+        } catch (ex) {
+            throw new Error(`Unable to redirect to ${redirect}. ${ex}`);
+        }
+        return redirect;
+    });
 }
 
 /**
@@ -77,69 +88,70 @@ export async function authorize(location: Location, options: NS.ClientOptions): 
  * For open servers that URL is the options.redirectUri so that we can skip the
  * authorization part.
  */
-export async function buildAuthorizeUrl(location: Location, options: NS.ClientOptions): Promise<string> {
-    const launch         = urlParam(location, "launch");
-    const iss            = urlParam(location, "iss");
-    const fhirServiceUrl = urlParam(location, "fhirServiceUrl");
+export function buildAuthorizeUrl(options: NS.ClientOptions, loc: Location = location): Promise<string> {
+    const launch         = urlParam("launch"        , { location: loc });
+    const iss            = urlParam("iss"           , { location: loc });
+    const fhirServiceUrl = urlParam("fhirServiceUrl", { location: loc });
 
     const serverUrl = String(iss || fhirServiceUrl || options.serverUrl || "");
 
     if (iss && !launch) {
-        throw new Error(`Missing url parameter "launch"`);
+        return Promise.reject(new Error(`Missing url parameter "launch"`));
     }
 
     if (!serverUrl) {
-        throw new Error(
+        return Promise.reject(new Error(
             "No server url found. It must be specified as query.iss or " +
             "query.fhirServiceUrl or options.serverUrl (in that order)"
-        );
+        ));
     }
 
     debug(`Looking up the authorization endpoint for "${serverUrl}"`);
-    const metadata   = await fetchConformanceStatement(serverUrl);
-    const extensions = getSecurityExtensions(metadata);
-    debug(`Found security extensions: `, extensions);
+    return fetchConformanceStatement(serverUrl).then(metadata => {
+        const extensions = getSecurityExtensions(metadata);
+        debug(`Found security extensions: `, extensions);
 
-    // Prepare the object that will be stored in the session
-    const state: NS.ClientState = {
-        serverUrl,
-        clientId   : options.clientId,
-        redirectUri: urlToAbsolute(options.redirectUri || "", location),
-        scope      : options.scope || "",
-        ...extensions
-    };
+        // Prepare the object that will be stored in the session
+        const state: NS.ClientState = {
+            serverUrl,
+            clientId   : options.clientId,
+            redirectUri: urlToAbsolute(options.redirectUri || "."),
+            scope      : options.scope || "",
+            ...extensions
+        };
 
-    if (options.clientSecret) {
-        debug(`Adding clientSecret to the state`);
-        state.clientSecret = options.clientSecret;
-    }
-
-    const id = randomString(32);
-    sessionStorage.setItem(id, JSON.stringify(state));
-    // sessionStorage.setItem(tokenResponse, JSON.stringify(state));
-
-    let redirectUrl = state.redirectUri;
-    // debug(state);
-    if (state.authorizeUri) {
-        debug(`authorizeUri: ${state.authorizeUri}`);
-        const params = [
-            "response_type=code",
-            "client_id="    + encodeURIComponent(state.clientId),
-            "scope="        + encodeURIComponent(state.scope),
-            "redirect_uri=" + encodeURIComponent(state.redirectUri),
-            "aud="          + encodeURIComponent(state.serverUrl),
-            "state="        + id
-        ];
-
-        // also pass this in case of EHR launch
-        if (launch) {
-            params.push("launch=" + encodeURIComponent(launch as string));
+        if (options.clientSecret) {
+            debug(`Adding clientSecret to the state`);
+            state.clientSecret = options.clientSecret;
         }
 
-        redirectUrl = state.authorizeUri + "?" + params.join("&");
-    }
+        const id = randomString(32);
+        sessionStorage.setItem(id, JSON.stringify(state));
+        // sessionStorage.setItem(tokenResponse, JSON.stringify(state));
 
-    return redirectUrl;
+        let redirectUrl = state.redirectUri;
+        // debug(state);
+        if (state.authorizeUri) {
+            debug(`authorizeUri: ${state.authorizeUri}`);
+            const params = [
+                "response_type=code",
+                "client_id="    + encodeURIComponent(state.clientId),
+                "scope="        + encodeURIComponent(state.scope),
+                "redirect_uri=" + encodeURIComponent(state.redirectUri),
+                "aud="          + encodeURIComponent(state.serverUrl),
+                "state="        + id
+            ];
+
+            // also pass this in case of EHR launch
+            if (launch) {
+                params.push("launch=" + encodeURIComponent(launch as string));
+            }
+
+            redirectUrl = state.authorizeUri + "?" + params.join("&");
+        }
+
+        return redirectUrl;
+    });
 }
 
 export function getState(id: string): FhirClient.ClientState {
@@ -156,6 +168,10 @@ export function getState(id: string): FhirClient.ClientState {
     } catch (_) {
         throw new Error(`Corrupt state: sessionStorage['${id}'] cannot be parsed as JSON.`);
     }
+}
+
+export function setState(key: string, value: FhirClient.ClientState) {
+    sessionStorage.setItem(key, JSON.stringify(value));
 }
 
 /**
@@ -219,10 +235,10 @@ export function buildTokenRequest(code: string, state: FhirClient.ClientState): 
  * Use this function to exchange that code for an access token and complete the
  * authorization flow.
  */
-export async function completeAuth(storage: Storage): Promise<Client> {
+export function completeAuth(): Promise<Client> {
     debug("Completing the code flow");
-    const state          = urlParam(location, "state");
-    const code           = urlParam(location, "code");
+    const state          = urlParam("state");
+    const code           = urlParam("code");
     const cached         = getState(state as string);
     const requestOptions = buildTokenRequest(code as string, cached);
 
@@ -230,13 +246,17 @@ export async function completeAuth(storage: Storage): Promise<Client> {
     // includes an access token or a message indicating that the
     // authorization request has been denied.
     return Adapter.get().http(requestOptions)
-        .then(({ data }) => {
-            debug(`Received tokenResponse. Saving it to the state...`);
-            cached.tokenResponse = data;
-            storage.setItem(state as string, JSON.stringify(cached));
-        })
-        .then(() => new Client(cached));
-    //     .catch(result => {
-    //         throw handleTokenError(result);
-    //     });
+        .then(
+            ({ data }) => {
+                debug(`Received tokenResponse. Saving it to the state...`);
+                cached.tokenResponse = data;
+                setState(state as string, cached);
+                return new Client(cached);
+            }
+            , error => {
+                // TODO: handle (humanize) token error
+                // console.log(error.message);
+                throw error;
+            }
+        );
 }

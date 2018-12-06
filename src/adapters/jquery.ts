@@ -1,4 +1,3 @@
-import smart   from "..";
 import Adapter from "../adapter";
 import "../index";
 
@@ -113,11 +112,11 @@ const adapter = {
     http(args) {
         const ret = jquery.Deferred();
         const opts = {
-            type: args.method,
-            url: args.url,
+            type    : args.method,
+            url     : args.url,
             dataType: args.dataType || "json",
-            headers: args.headers || {},
-            data: args.data,
+            headers : args.headers || {},
+            data    : args.data,
             // contentType: "application/json",
             // data: args.data || args.params,
             // withCredentials: args.credentials === 'include',
