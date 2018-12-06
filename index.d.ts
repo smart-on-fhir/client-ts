@@ -492,6 +492,7 @@ export namespace fhir {
     }
 
     interface CapabilityStatement {
+        resourceType: string;
         fhirVersion: string;
         rest: {
             security?: {

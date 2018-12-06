@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/adapters/jquery.ts");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.ts");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -379,6 +379,540 @@ function __importDefault(mod) {
 
 /***/ }),
 
+/***/ "./node_modules/whatwg-fetch/fetch.js":
+/*!********************************************!*\
+  !*** ./node_modules/whatwg-fetch/fetch.js ***!
+  \********************************************/
+/*! exports provided: Headers, Request, Response, DOMException, fetch */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Headers", function() { return Headers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Request", function() { return Request; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Response", function() { return Response; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DOMException", function() { return DOMException; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetch", function() { return fetch; });
+var support = {
+  searchParams: 'URLSearchParams' in self,
+  iterable: 'Symbol' in self && 'iterator' in Symbol,
+  blob:
+    'FileReader' in self &&
+    'Blob' in self &&
+    (function() {
+      try {
+        new Blob()
+        return true
+      } catch (e) {
+        return false
+      }
+    })(),
+  formData: 'FormData' in self,
+  arrayBuffer: 'ArrayBuffer' in self
+}
+
+function isDataView(obj) {
+  return obj && DataView.prototype.isPrototypeOf(obj)
+}
+
+if (support.arrayBuffer) {
+  var viewClasses = [
+    '[object Int8Array]',
+    '[object Uint8Array]',
+    '[object Uint8ClampedArray]',
+    '[object Int16Array]',
+    '[object Uint16Array]',
+    '[object Int32Array]',
+    '[object Uint32Array]',
+    '[object Float32Array]',
+    '[object Float64Array]'
+  ]
+
+  var isArrayBufferView =
+    ArrayBuffer.isView ||
+    function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
+}
+
+function normalizeName(name) {
+  if (typeof name !== 'string') {
+    name = String(name)
+  }
+  if (/[^a-z0-9\-#$%&'*+.^_`|~]/i.test(name)) {
+    throw new TypeError('Invalid character in header field name')
+  }
+  return name.toLowerCase()
+}
+
+function normalizeValue(value) {
+  if (typeof value !== 'string') {
+    value = String(value)
+  }
+  return value
+}
+
+// Build a destructive iterator for the value list
+function iteratorFor(items) {
+  var iterator = {
+    next: function() {
+      var value = items.shift()
+      return {done: value === undefined, value: value}
+    }
+  }
+
+  if (support.iterable) {
+    iterator[Symbol.iterator] = function() {
+      return iterator
+    }
+  }
+
+  return iterator
+}
+
+function Headers(headers) {
+  this.map = {}
+
+  if (headers instanceof Headers) {
+    headers.forEach(function(value, name) {
+      this.append(name, value)
+    }, this)
+  } else if (Array.isArray(headers)) {
+    headers.forEach(function(header) {
+      this.append(header[0], header[1])
+    }, this)
+  } else if (headers) {
+    Object.getOwnPropertyNames(headers).forEach(function(name) {
+      this.append(name, headers[name])
+    }, this)
+  }
+}
+
+Headers.prototype.append = function(name, value) {
+  name = normalizeName(name)
+  value = normalizeValue(value)
+  var oldValue = this.map[name]
+  this.map[name] = oldValue ? oldValue + ', ' + value : value
+}
+
+Headers.prototype['delete'] = function(name) {
+  delete this.map[normalizeName(name)]
+}
+
+Headers.prototype.get = function(name) {
+  name = normalizeName(name)
+  return this.has(name) ? this.map[name] : null
+}
+
+Headers.prototype.has = function(name) {
+  return this.map.hasOwnProperty(normalizeName(name))
+}
+
+Headers.prototype.set = function(name, value) {
+  this.map[normalizeName(name)] = normalizeValue(value)
+}
+
+Headers.prototype.forEach = function(callback, thisArg) {
+  for (var name in this.map) {
+    if (this.map.hasOwnProperty(name)) {
+      callback.call(thisArg, this.map[name], name, this)
+    }
+  }
+}
+
+Headers.prototype.keys = function() {
+  var items = []
+  this.forEach(function(value, name) {
+    items.push(name)
+  })
+  return iteratorFor(items)
+}
+
+Headers.prototype.values = function() {
+  var items = []
+  this.forEach(function(value) {
+    items.push(value)
+  })
+  return iteratorFor(items)
+}
+
+Headers.prototype.entries = function() {
+  var items = []
+  this.forEach(function(value, name) {
+    items.push([name, value])
+  })
+  return iteratorFor(items)
+}
+
+if (support.iterable) {
+  Headers.prototype[Symbol.iterator] = Headers.prototype.entries
+}
+
+function consumed(body) {
+  if (body.bodyUsed) {
+    return Promise.reject(new TypeError('Already read'))
+  }
+  body.bodyUsed = true
+}
+
+function fileReaderReady(reader) {
+  return new Promise(function(resolve, reject) {
+    reader.onload = function() {
+      resolve(reader.result)
+    }
+    reader.onerror = function() {
+      reject(reader.error)
+    }
+  })
+}
+
+function readBlobAsArrayBuffer(blob) {
+  var reader = new FileReader()
+  var promise = fileReaderReady(reader)
+  reader.readAsArrayBuffer(blob)
+  return promise
+}
+
+function readBlobAsText(blob) {
+  var reader = new FileReader()
+  var promise = fileReaderReady(reader)
+  reader.readAsText(blob)
+  return promise
+}
+
+function readArrayBufferAsText(buf) {
+  var view = new Uint8Array(buf)
+  var chars = new Array(view.length)
+
+  for (var i = 0; i < view.length; i++) {
+    chars[i] = String.fromCharCode(view[i])
+  }
+  return chars.join('')
+}
+
+function bufferClone(buf) {
+  if (buf.slice) {
+    return buf.slice(0)
+  } else {
+    var view = new Uint8Array(buf.byteLength)
+    view.set(new Uint8Array(buf))
+    return view.buffer
+  }
+}
+
+function Body() {
+  this.bodyUsed = false
+
+  this._initBody = function(body) {
+    this._bodyInit = body
+    if (!body) {
+      this._bodyText = ''
+    } else if (typeof body === 'string') {
+      this._bodyText = body
+    } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+      this._bodyBlob = body
+    } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+      this._bodyFormData = body
+    } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+      this._bodyText = body.toString()
+    } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+      this._bodyArrayBuffer = bufferClone(body.buffer)
+      // IE 10-11 can't handle a DataView body.
+      this._bodyInit = new Blob([this._bodyArrayBuffer])
+    } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+      this._bodyArrayBuffer = bufferClone(body)
+    } else {
+      this._bodyText = body = Object.prototype.toString.call(body)
+    }
+
+    if (!this.headers.get('content-type')) {
+      if (typeof body === 'string') {
+        this.headers.set('content-type', 'text/plain;charset=UTF-8')
+      } else if (this._bodyBlob && this._bodyBlob.type) {
+        this.headers.set('content-type', this._bodyBlob.type)
+      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+        this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+      }
+    }
+  }
+
+  if (support.blob) {
+    this.blob = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return Promise.resolve(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(new Blob([this._bodyArrayBuffer]))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as blob')
+      } else {
+        return Promise.resolve(new Blob([this._bodyText]))
+      }
+    }
+
+    this.arrayBuffer = function() {
+      if (this._bodyArrayBuffer) {
+        return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+      } else {
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+    }
+  }
+
+  this.text = function() {
+    var rejected = consumed(this)
+    if (rejected) {
+      return rejected
+    }
+
+    if (this._bodyBlob) {
+      return readBlobAsText(this._bodyBlob)
+    } else if (this._bodyArrayBuffer) {
+      return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+    } else if (this._bodyFormData) {
+      throw new Error('could not read FormData body as text')
+    } else {
+      return Promise.resolve(this._bodyText)
+    }
+  }
+
+  if (support.formData) {
+    this.formData = function() {
+      return this.text().then(decode)
+    }
+  }
+
+  this.json = function() {
+    return this.text().then(JSON.parse)
+  }
+
+  return this
+}
+
+// HTTP methods whose capitalization should be normalized
+var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+
+function normalizeMethod(method) {
+  var upcased = method.toUpperCase()
+  return methods.indexOf(upcased) > -1 ? upcased : method
+}
+
+function Request(input, options) {
+  options = options || {}
+  var body = options.body
+
+  if (input instanceof Request) {
+    if (input.bodyUsed) {
+      throw new TypeError('Already read')
+    }
+    this.url = input.url
+    this.credentials = input.credentials
+    if (!options.headers) {
+      this.headers = new Headers(input.headers)
+    }
+    this.method = input.method
+    this.mode = input.mode
+    this.signal = input.signal
+    if (!body && input._bodyInit != null) {
+      body = input._bodyInit
+      input.bodyUsed = true
+    }
+  } else {
+    this.url = String(input)
+  }
+
+  this.credentials = options.credentials || this.credentials || 'same-origin'
+  if (options.headers || !this.headers) {
+    this.headers = new Headers(options.headers)
+  }
+  this.method = normalizeMethod(options.method || this.method || 'GET')
+  this.mode = options.mode || this.mode || null
+  this.signal = options.signal || this.signal
+  this.referrer = null
+
+  if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+    throw new TypeError('Body not allowed for GET or HEAD requests')
+  }
+  this._initBody(body)
+}
+
+Request.prototype.clone = function() {
+  return new Request(this, {body: this._bodyInit})
+}
+
+function decode(body) {
+  var form = new FormData()
+  body
+    .trim()
+    .split('&')
+    .forEach(function(bytes) {
+      if (bytes) {
+        var split = bytes.split('=')
+        var name = split.shift().replace(/\+/g, ' ')
+        var value = split.join('=').replace(/\+/g, ' ')
+        form.append(decodeURIComponent(name), decodeURIComponent(value))
+      }
+    })
+  return form
+}
+
+function parseHeaders(rawHeaders) {
+  var headers = new Headers()
+  // Replace instances of \r\n and \n followed by at least one space or horizontal tab with a space
+  // https://tools.ietf.org/html/rfc7230#section-3.2
+  var preProcessedHeaders = rawHeaders.replace(/\r?\n[\t ]+/g, ' ')
+  preProcessedHeaders.split(/\r?\n/).forEach(function(line) {
+    var parts = line.split(':')
+    var key = parts.shift().trim()
+    if (key) {
+      var value = parts.join(':').trim()
+      headers.append(key, value)
+    }
+  })
+  return headers
+}
+
+Body.call(Request.prototype)
+
+function Response(bodyInit, options) {
+  if (!options) {
+    options = {}
+  }
+
+  this.type = 'default'
+  this.status = options.status === undefined ? 200 : options.status
+  this.ok = this.status >= 200 && this.status < 300
+  this.statusText = 'statusText' in options ? options.statusText : 'OK'
+  this.headers = new Headers(options.headers)
+  this.url = options.url || ''
+  this._initBody(bodyInit)
+}
+
+Body.call(Response.prototype)
+
+Response.prototype.clone = function() {
+  return new Response(this._bodyInit, {
+    status: this.status,
+    statusText: this.statusText,
+    headers: new Headers(this.headers),
+    url: this.url
+  })
+}
+
+Response.error = function() {
+  var response = new Response(null, {status: 0, statusText: ''})
+  response.type = 'error'
+  return response
+}
+
+var redirectStatuses = [301, 302, 303, 307, 308]
+
+Response.redirect = function(url, status) {
+  if (redirectStatuses.indexOf(status) === -1) {
+    throw new RangeError('Invalid status code')
+  }
+
+  return new Response(null, {status: status, headers: {location: url}})
+}
+
+var DOMException = self.DOMException
+try {
+  new DOMException()
+} catch (err) {
+  DOMException = function(message, name) {
+    this.message = message
+    this.name = name
+    var error = Error(message)
+    this.stack = error.stack
+  }
+  DOMException.prototype = Object.create(Error.prototype)
+  DOMException.prototype.constructor = DOMException
+}
+
+function fetch(input, init) {
+  return new Promise(function(resolve, reject) {
+    var request = new Request(input, init)
+
+    if (request.signal && request.signal.aborted) {
+      return reject(new DOMException('Aborted', 'AbortError'))
+    }
+
+    var xhr = new XMLHttpRequest()
+
+    function abortXhr() {
+      xhr.abort()
+    }
+
+    xhr.onload = function() {
+      var options = {
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+      }
+      options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
+      var body = 'response' in xhr ? xhr.response : xhr.responseText
+      resolve(new Response(body, options))
+    }
+
+    xhr.onerror = function() {
+      reject(new TypeError('Network request failed'))
+    }
+
+    xhr.ontimeout = function() {
+      reject(new TypeError('Network request failed'))
+    }
+
+    xhr.onabort = function() {
+      reject(new DOMException('Aborted', 'AbortError'))
+    }
+
+    xhr.open(request.method, request.url, true)
+
+    if (request.credentials === 'include') {
+      xhr.withCredentials = true
+    } else if (request.credentials === 'omit') {
+      xhr.withCredentials = false
+    }
+
+    if ('responseType' in xhr && support.blob) {
+      xhr.responseType = 'blob'
+    }
+
+    request.headers.forEach(function(value, name) {
+      xhr.setRequestHeader(name, value)
+    })
+
+    if (request.signal) {
+      request.signal.addEventListener('abort', abortXhr)
+
+      xhr.onreadystatechange = function() {
+        // DONE (success or failure)
+        if (xhr.readyState === 4) {
+          request.signal.removeEventListener('abort', abortXhr)
+        }
+      }
+    }
+
+    xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit)
+  })
+}
+
+fetch.polyfill = true
+
+if (!self.fetch) {
+  self.fetch = fetch
+  self.Headers = Headers
+  self.Request = Request
+  self.Response = Response
+}
+
+
+/***/ }),
+
 /***/ "./src/Client.ts":
 /*!***********************!*\
   !*** ./src/Client.ts ***!
@@ -389,8 +923,7 @@ function __importDefault(mod) {
 "use strict";
 
 exports.__esModule = true;
-var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
-var adapter_1 = __webpack_require__(/*! ./adapter */ "./src/adapter.ts");
+// import Adapter              from "./adapter";
 // import makeFhir             from "fhir.js";
 // import makeFhir             from "fhir.js/src/fhir.js";
 // import { urlToAbsolute, getPath } from "./lib";
@@ -422,17 +955,12 @@ var Client = /** @class */ (function () {
      * 3. Automatically re-authorize using the refreshToken (if available)
      * 4. Automatically parse error operation outcomes and turn them into
      *   JavaScript Error objects with which the resulting promises are rejected
-     * @param {object|string} options URL or axios request options
+     * @param {string} url the URL to fetch
+     * @param {object} options fetch options
      */
-    Client.prototype.request = function (options) {
-        var cfg;
-        if (typeof options == "string") {
-            cfg = { url: options };
-        }
-        else {
-            cfg = tslib_1.__assign({}, options);
-        }
-        cfg.url = this.state.serverUrl.replace(/\/?$/, "/") + cfg.url.replace(/^\//, "");
+    Client.prototype.request = function (url, options) {
+        if (options === void 0) { options = {}; }
+        url = this.state.serverUrl.replace(/\/?$/, "/") + url.replace(/^\//, "");
         // cfg.url = urlToAbsolute(cfg.url, location);
         //     // If we are talking to protected fhir server we should have an access token
         //     const accessToken = getPath(this.state, "tokenResponse.access_token");
@@ -442,153 +970,11 @@ var Client = /** @class */ (function () {
         //             Authorization: `Bearer ${accessToken}`
         //         };
         //     }
-        return adapter_1["default"].get().http(cfg);
+        return fetch(url, options);
     };
     return Client;
 }());
 exports["default"] = Client;
-
-
-/***/ }),
-
-/***/ "./src/adapter.ts":
-/*!************************!*\
-  !*** ./src/adapter.ts ***!
-  \************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var adapter;
-exports["default"] = {
-    debug: true,
-    set: function (newAdapter) {
-        adapter = newAdapter;
-    },
-    get: function () {
-        return adapter;
-    }
-};
-
-
-/***/ }),
-
-/***/ "./src/adapters/jquery.ts":
-/*!********************************!*\
-  !*** ./src/adapters/jquery.ts ***!
-  \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var adapter_1 = __webpack_require__(/*! ../adapter */ "./src/adapter.ts");
-__webpack_require__(/*! ../index */ "./src/index.ts");
-var jquery = jQuery;
-// Patch jQuery AJAX mechanism to receive blob objects via XMLHttpRequest 2. Based on:
-//    https://gist.github.com/aaronk6/bff7cc600d863d31a7bf
-//    http://www.artandlogic.com/blog/2013/11/jquery-ajax-blobs-and-array-buffers/
-/**
- * Register ajax transports for blob send/receive and array buffer send/receive via XMLHttpRequest Level 2
- * within the comfortable framework of the jquery ajax request, with full support for promises.
- *
- * Notice the +* in the dataType string? The + indicates we want this transport to be prepended to the list
- * of potential transports (so it gets first dibs if the request passes the conditions within to provide the
- * ajax transport, preventing the standard transport from hogging the request), and the * indicates that
- * potentially any request with any dataType might want to use the transports provided herein.
- *
- * Remember to specify 'processData:false' in the ajax options when attempting to send a blob or ArrayBuffer -
- * otherwise jquery will try (and fail) to convert the blob or buffer into a query string.
- */
-jQuery.ajaxTransport("+*", function (options, originalOptions, jqXHR) {
-    var win = window;
-    // Test for the conditions that mean we can/want to send/receive blobs or ArrayBuffers - we need XMLHttpRequest
-    // level 2 (so feature-detect against window.FormData), feature detect against window.Blob or window.ArrayBuffer,
-    // and then check to see if the dataType is blob/ArrayBuffer or the data itself is a Blob/ArrayBuffer
-    if (win.FormData && ((options.dataType && (options.dataType === "blob" || options.dataType === "arraybuffer")) ||
-        (options.data && ((win.Blob && options.data instanceof Blob) ||
-            (win.ArrayBuffer && options.data instanceof ArrayBuffer))))) {
-        return {
-            /**
-             * Return a transport capable of sending and/or receiving blobs - in this case, we instantiate
-             * a new XMLHttpRequest and use it to actually perform the request, and funnel the result back
-             * into the jquery complete callback (such as the success function, done blocks, etc.)
-             *
-             * @param headers
-             * @param completeCallback
-             */
-            send: function (headers, completeCallback) {
-                var xhr = new XMLHttpRequest(), url = options.url || win.location.href, type = options.type || "GET", dataType = options.dataType || "text", data = options.data || null, async = options.async || true;
-                var key;
-                xhr.addEventListener("load", function () {
-                    var response = {};
-                    if (xhr.status >= 200 && (xhr.status < 300 || xhr.status === 304)) {
-                        response[dataType] = xhr.response;
-                    }
-                    else {
-                        // In case an error occurred we assume that the response body contains
-                        // text data - so let's convert the binary data to a string which we can
-                        // pass to the complete callback.
-                        response.text = String.fromCharCode.apply(null, new Uint8Array(xhr.response));
-                    }
-                    completeCallback(xhr.status, xhr.statusText, response, xhr.getAllResponseHeaders());
-                });
-                xhr.open(type, url, async);
-                xhr.responseType = dataType;
-                for (key in headers) {
-                    if (headers.hasOwnProperty(key)) {
-                        xhr.setRequestHeader(key, headers[key]);
-                    }
-                }
-                xhr.send(data);
-            },
-            abort: function () {
-                jqXHR.abort();
-            }
-        };
-    }
-});
-// if (!process.browser) {
-//     var windowObj = require('jsdom').jsdom().createWindow();
-//     jquery = jQuery(windowObj);
-// }
-function defer() {
-    var pr = jquery.Deferred();
-    pr.promise = pr.promise();
-    return pr;
-}
-var adapter = {
-    defer: defer,
-    http: function (args) {
-        var ret = jquery.Deferred();
-        var opts = {
-            type: args.method,
-            url: args.url,
-            dataType: args.dataType || "json",
-            headers: args.headers || {},
-            data: args.data
-        };
-        jquery.ajax(opts)
-            // .done(ret.resolve)
-            // .fail(ret.reject);
-            .done(function (data, status, xhr) {
-            ret.resolve({
-                data: data,
-                status: status,
-                headers: xhr.getResponseHeader,
-                config: args
-            });
-        })
-            .fail(function (err) {
-            ret.reject({ error: err, data: err, config: args });
-        });
-        return ret.promise();
-    }
-};
-adapter_1["default"].set(adapter);
 
 
 /***/ }),
@@ -603,6 +989,7 @@ adapter_1["default"].set(adapter);
 "use strict";
 
 exports.__esModule = true;
+__webpack_require__(/*! whatwg-fetch */ "./node_modules/whatwg-fetch/fetch.js");
 var oAuth2 = __webpack_require__(/*! ./oauth */ "./src/oauth.ts");
 window.FHIR = {
     oAuth2: {
@@ -734,7 +1121,6 @@ exports.randomString = randomString;
 exports.__esModule = true;
 var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 var Base64_1 = __webpack_require__(/*! Base64 */ "./node_modules/Base64/base64.js");
-var adapter_1 = __webpack_require__(/*! ./adapter */ "./src/adapter.ts");
 var Client_1 = __webpack_require__(/*! ./Client */ "./src/Client.ts");
 var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
 // $lab:coverage:off$
@@ -753,10 +1139,7 @@ function fetchConformanceStatement(baseUrl) {
         baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
     }
     var url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
-    return adapter_1["default"].get().http({ method: "GET", url: url }).then(function (_a) {
-        var data = _a.data;
-        return data;
-    }, function (ex) {
+    return fetch(url).then(function (resp) { return resp.json(); })["catch"](function (ex) {
         debug(ex);
         throw new Error("Failed to fetch the conformance statement from \"" + url + "\"");
     });
@@ -907,15 +1290,11 @@ function buildTokenRequest(code, state) {
     }
     var requestOptions = {
         method: "POST",
-        url: state.tokenUri,
+        // url   : state.tokenUri,
         headers: {
             "content-type": "application/x-www-form-urlencoded"
         },
-        data: {
-            code: code,
-            grant_type: "authorization_code",
-            redirect_uri: state.redirectUri
-        }
+        body: "code=" + code + "&grant_type=authorization_code&redirect_uri=" + encodeURIComponent(state.redirectUri)
     };
     // For public apps, authentication is not possible (and thus not
     // required), since the app cannot be trusted to protect a secret.
@@ -928,7 +1307,8 @@ function buildTokenRequest(code, state) {
     }
     else {
         debug("No clientSecret found in state. Adding client_id to the POST body");
-        requestOptions.data.client_id = state.clientId;
+        // requestOptions.data.client_id = state.clientId;
+        requestOptions.body += "&client_id=" + encodeURIComponent(state.clientId);
     }
     return requestOptions;
 }
@@ -947,14 +1327,14 @@ function completeAuth() {
     // The EHR authorization server SHALL return a JSON structure that
     // includes an access token or a message indicating that the
     // authorization request has been denied.
-    return adapter_1["default"].get().http(requestOptions)
-        .then(function (_a) {
-        var data = _a.data;
+    return fetch(cached.tokenUri, requestOptions)
+        .then(function (resp) { return resp.json(); })
+        .then(function (data) {
         debug("Received tokenResponse. Saving it to the state...");
         cached.tokenResponse = data;
         setState(state, cached);
         return new Client_1["default"](cached);
-    }, function (error) {
+    })["catch"](function (error) {
         // TODO: handle (humanize) token error
         // console.log(error.message);
         throw error;

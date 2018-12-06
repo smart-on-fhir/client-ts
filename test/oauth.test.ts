@@ -1,9 +1,10 @@
+import "isomorphic-fetch";
 import * as Lab                    from "lab";
 import { expect }                  from "code";
 import * as oauth                  from "../src/oauth";
 import Adapter                     from "../src/adapter";
 import * as request                from "request";
-import { FhirClient }              from "..";
+import { FhirClient, fhir }        from "..";
 import { urlParam, urlToAbsolute } from "../src/lib";
 import { JSDOM }                   from "jsdom";
 
@@ -98,31 +99,26 @@ describe("oauth", () => {
 
     describe("fetchConformanceStatement", () => {
         it ("rejects bad baseUrl values", () => {
-            Adapter.set(adapterStub);
             expect(oauth.fetchConformanceStatement("")).to.reject();
             expect(oauth.fetchConformanceStatement(null)).to.reject();
             expect(oauth.fetchConformanceStatement("whatever")).to.reject();
         });
 
         it ("without baseUrl fetches '/metadata' rooted at the current domain", () => {
-            Adapter.set(adapterStub);
             expect(oauth.fetchConformanceStatement()).to.reject();
         });
 
         it ("works on custom ports", () => {
-            const dom = new JSDOM(``, {
-                url: "http://localhost:1234/a/b/c",
-            });
-
+            const dom = new JSDOM(``, { url: "http://localhost:1234/a/b/c" });
             (global as ExtendedGlobal).document = dom.window.document;
             (global as ExtendedGlobal).location = dom.window.location;
-            Adapter.set(adapterStub);
             expect(oauth.fetchConformanceStatement("")).to.reject();
         });
 
-        it ("works", () => {
-            Adapter.set(adapterStub);
-            oauth.fetchConformanceStatement("https://r3.smarthealthit.org");
+        it ("works", async () => {
+            const metadata = await oauth.fetchConformanceStatement("https://r3.smarthealthit.org");
+            expect(metadata).to.be.an.object();
+            expect(metadata.resourceType).to.equal("CapabilityStatement");
         });
     });
 
@@ -157,7 +153,7 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            });
+            } as fhir.CapabilityStatement);
             expect(extensions).to.equal({
                 registrationUri : "registration-uri",
                 authorizeUri    : "",
@@ -186,7 +182,7 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            });
+            } as fhir.CapabilityStatement);
             expect(extensions).to.equal({
                 registrationUri : "",
                 authorizeUri    : "",
@@ -215,7 +211,7 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            });
+            } as fhir.CapabilityStatement);
             expect(extensions).to.equal({
                 registrationUri : "",
                 authorizeUri    : "authorize-uri",
@@ -252,7 +248,7 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            });
+            } as fhir.CapabilityStatement);
             expect(extensions).to.equal({
                 registrationUri : "registration-uri",
                 authorizeUri    : "authorize-uri",
@@ -586,16 +582,17 @@ describe("oauth", () => {
                 } as FhirClient.ClientState
             )).to.equal({
                 method: "POST",
-                url   : "my-tokenUri",
+                // url   : "my-tokenUri",
                 headers: {
                     "content-type": "application/x-www-form-urlencoded"
                 },
-                data: {
-                    client_id   : "my-clientId",
-                    code        : "my-code",
-                    grant_type  : "authorization_code",
-                    redirect_uri: "my-redirectUri"
-                }
+                body: `code=my-code&grant_type=authorization_code&redirect_uri=my-redirectUri&client_id=my-clientId`
+                // data: {
+                //     client_id   : "my-clientId",
+                //     code        : "my-code",
+                //     grant_type  : "authorization_code",
+                //     redirect_uri: "my-redirectUri"
+                // }
             });
         });
 
@@ -610,16 +607,17 @@ describe("oauth", () => {
                 } as FhirClient.ClientState
             )).to.equal({
                 method: "POST",
-                url   : "my-tokenUri",
+                // url   : "my-tokenUri",
                 headers: {
                     "content-type": "application/x-www-form-urlencoded",
                     Authorization: "Basic " + Buffer.from("my-clientId:my-clientSecret").toString("base64")
                 },
-                data: {
-                    code        : "my-code",
-                    grant_type  : "authorization_code",
-                    redirect_uri: "my-redirectUri"
-                }
+                body: `code=my-code&grant_type=authorization_code&redirect_uri=my-redirectUri`
+                // data: {
+                //     code        : "my-code",
+                //     grant_type  : "authorization_code",
+                //     redirect_uri: "my-redirectUri"
+                // }
             });
         });
 

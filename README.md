@@ -28,17 +28,19 @@
 
 - `Promise` - Polyfill needed! Not supported in IE, only in Edge 12+. Promises are NOT used directly by this library. They originate from the HTTP request calls. However, a global `Promise` constructor is expected to exist and is being invoked by the `__awaiter` TS helper (async functions)
 - `Array.prototype.reduce` - IE10+ (probably 9+, needs testing). Polyfill if needed.
-- `FormData` and `ArrayBuffer` - should be fixed by throwing away the jQuery adapter.
+- `FormData` and `ArrayBuffer` - fixed by throwing away the jQuery adapter.
 - `Uint16Array` - fixed by using HEX random strings instead of GUIDs.
+- `fetch` - polyfill if needed
 
 ## Open Questions
 
-1. What are the current EMR Browsers:
+1. What is the lower version of IE that we have to support. Currently aiming at 10.
+2. What are the current EMR Browsers:
     - Cerner - IE 10+
     - Epic - ?
     - Allscripts - ?
     - Other - ?
-2. The old library includes these settings:
+3. The old library includes these settings:
    ```js
    replaceBrowserHistory: true,
    fullSessionStorageSupport: true

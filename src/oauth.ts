@@ -1,6 +1,5 @@
 import { FhirClient as NS, FhirClient, fhir }  from "..";
 import { btoa }                                from "Base64";
-import Adapter                                 from "./adapter";
 import Client                                  from "./Client";
 import {
     urlParam,
@@ -23,13 +22,10 @@ export function fetchConformanceStatement(baseUrl?: string): Promise<fhir.Capabi
         baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
     }
     const url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
-    return Adapter.get().http({ method: "GET", url }).then(
-        ({ data }) => data,
-        ex => {
-            debug(ex);
-            throw new Error(`Failed to fetch the conformance statement from "${url}"`);
-        }
-    );
+    return fetch(url).then(resp => resp.json()).catch(ex => {
+        debug(ex);
+        throw new Error(`Failed to fetch the conformance statement from "${url}"`);
+    });
 }
 
 /**
@@ -107,7 +103,7 @@ export function buildAuthorizeUrl(options: NS.ClientOptions, loc: Location = loc
     }
 
     debug(`Looking up the authorization endpoint for "${serverUrl}"`);
-    return fetchConformanceStatement(serverUrl).then(metadata => {
+    return fetchConformanceStatement(serverUrl).then(metadata => { // console.log(metadata);
         const extensions = getSecurityExtensions(metadata);
         debug(`Found security extensions: `, extensions);
 
@@ -198,15 +194,11 @@ export function buildTokenRequest(code: string, state: FhirClient.ClientState): 
 
     const requestOptions: any = {
         method: "POST",
-        url   : state.tokenUri,
+        // url   : state.tokenUri,
         headers: {
             "content-type": "application/x-www-form-urlencoded"
         },
-        data: {
-            code,
-            grant_type  : "authorization_code",
-            redirect_uri: state.redirectUri
-        }
+        body: `code=${code}&grant_type=authorization_code&redirect_uri=${encodeURIComponent(state.redirectUri)}`
     };
 
     // For public apps, authentication is not possible (and thus not
@@ -224,7 +216,8 @@ export function buildTokenRequest(code: string, state: FhirClient.ClientState): 
         );
     } else {
         debug(`No clientSecret found in state. Adding client_id to the POST body`);
-        requestOptions.data.client_id = state.clientId;
+        // requestOptions.data.client_id = state.clientId;
+        requestOptions.body += `&client_id=${encodeURIComponent(state.clientId)}`;
     }
 
     return requestOptions;
@@ -245,18 +238,17 @@ export function completeAuth(): Promise<Client> {
     // The EHR authorization server SHALL return a JSON structure that
     // includes an access token or a message indicating that the
     // authorization request has been denied.
-    return Adapter.get().http(requestOptions)
-        .then(
-            ({ data }) => {
-                debug(`Received tokenResponse. Saving it to the state...`);
-                cached.tokenResponse = data;
-                setState(state as string, cached);
-                return new Client(cached);
-            }
-            , error => {
-                // TODO: handle (humanize) token error
-                // console.log(error.message);
-                throw error;
-            }
-        );
+    return fetch(cached.tokenUri, requestOptions)
+        .then(resp => resp.json())
+        .then(data => {
+            debug(`Received tokenResponse. Saving it to the state...`);
+            cached.tokenResponse = data;
+            setState(state as string, cached);
+            return new Client(cached);
+        })
+        .catch(error => {
+            // TODO: handle (humanize) token error
+            // console.log(error.message);
+            throw error;
+        });
 }

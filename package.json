@@ -29,6 +29,7 @@
     "@types/request": "^2.48.1",
     "awesome-typescript-loader": "^5.2.1",
     "code": "^5.2.4",
+    "isomorphic-fetch": "^2.2.1",
     "jsdom": "^13.0.0",
     "lab": "^18.0.0",
     "lab-transform-typescript": "^3.0.1",
@@ -46,7 +47,8 @@
     "btoa": "^1.2.1",
     "fhir.js": "0.0.20",
     "jquery": "^3.3.1",
-    "jsonwebtoken": "^8.4.0"
+    "jsonwebtoken": "^8.4.0",
+    "whatwg-fetch": "^3.0.0"
   },
   "sideEffects": false
 }

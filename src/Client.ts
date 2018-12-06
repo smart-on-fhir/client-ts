@@ -1,5 +1,6 @@
 import { FhirClient as NS } from "..";
-import Adapter              from "./adapter";
+import { FetchOptions } from "jsdom";
+// import Adapter              from "./adapter";
 // import makeFhir             from "fhir.js";
 // import makeFhir             from "fhir.js/src/fhir.js";
 // import { urlToAbsolute, getPath } from "./lib";
@@ -44,18 +45,12 @@ export default class Client
      * 3. Automatically re-authorize using the refreshToken (if available)
      * 4. Automatically parse error operation outcomes and turn them into
      *   JavaScript Error objects with which the resulting promises are rejected
-     * @param {object|string} options URL or axios request options
+     * @param {string} url the URL to fetch
+     * @param {object} options fetch options
      */
-    public request(options)
+    public request(url: string, options: any = {})
     {
-        let cfg;
-        if (typeof options == "string") {
-            cfg = { url: options };
-        } else {
-            cfg = { ...options };
-        }
-
-        cfg.url = this.state.serverUrl.replace(/\/?$/, "/") + cfg.url.replace(/^\//, "");
+        url = this.state.serverUrl.replace(/\/?$/, "/") + url.replace(/^\//, "");
         // cfg.url = urlToAbsolute(cfg.url, location);
 
     //     // If we are talking to protected fhir server we should have an access token
@@ -67,7 +62,7 @@ export default class Client
     //         };
     //     }
 
-        return Adapter.get().http(cfg);
+        return fetch(url, options);
     }
 
     // public get(p) {}

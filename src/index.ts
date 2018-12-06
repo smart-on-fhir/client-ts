@@ -1,5 +1,6 @@
 import { FhirClient as NS } from "..";
-import * as oAuth2          from "./oauth";
+import "whatwg-fetch";
+import * as oAuth2 from "./oauth";
 
 window.FHIR = {
     oAuth2: {

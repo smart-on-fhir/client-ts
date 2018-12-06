@@ -1,8 +1,8 @@
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
-    entry: "./src/adapters/jquery.ts",
-    
+    entry: "./src/index.ts",
+
     output: {
         filename: "fhir-client.js",
         path    : __dirname + "/dist"
@@ -19,8 +19,8 @@ module.exports = {
         rules: [
             // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
             {
-                test: /\.ts$/,
-                loader: "awesome-typescript-loader",
+                test   : /\.ts$/,
+                loader : "awesome-typescript-loader",
                 exclude: /node_modules/,
                 options: {
                     errorsAsWarnings: true
@@ -30,8 +30,8 @@ module.exports = {
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             {
                 enforce: "pre",
-                test: /\.js$/,
-                loader: "source-map-loader"
+                test   : /\.js$/,
+                loader : "source-map-loader"
             }
         ]
     },
@@ -40,10 +40,10 @@ module.exports = {
     // assume a corresponding global variable exists and use that instead.
     // This is important because it allows us to avoid bundling all of our
     // dependencies, which allows browsers to cache those libraries between builds.
-    externals: {
-        "jsonwebtoken": "jsonwebtoken",
-        "jquery"      : "jQuery"
-    },
+    // externals: {
+    //     "jsonwebtoken": "jsonwebtoken",
+    //     "jquery"      : "jQuery"
+    // },
 
     plugins: [
         new BundleAnalyzerPlugin()
