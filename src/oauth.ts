@@ -178,7 +178,7 @@ export function setState(key: string, value: FhirClient.ClientState) {
  * @param req
  * @param storage
  */
-export function buildTokenRequest(code: string, state: FhirClient.ClientState): any {
+export function buildTokenRequest(code: string, state: FhirClient.ClientState): RequestInit {
 
     if (!state.redirectUri) {
         throw new Error(`Missing state.redirectUri`);
@@ -228,11 +228,19 @@ export function buildTokenRequest(code: string, state: FhirClient.ClientState): 
  * Use this function to exchange that code for an access token and complete the
  * authorization flow.
  */
-export function completeAuth(): Promise<Client> {
+export async function completeAuth(): Promise<Client> {
     debug("Completing the code flow");
-    const state          = urlParam("state");
-    const code           = urlParam("code");
-    const cached         = getState(state as string);
+
+    // These are coming from the URL so make sure we validate them
+    const state = urlParam("state");
+    const code = urlParam("code");
+    if (!state) { throw new Error('No "state" parameter found in the URL'); }
+    if (!code ) { throw new Error('No "code" parameter found in the URL' ); }
+
+    const cached = getState(state as string);
+
+    // state and code are coming from the page url so they might be empty or
+    // just invalid. In this case buildTokenRequest() will throw!
     const requestOptions = buildTokenRequest(code as string, cached);
 
     // The EHR authorization server SHALL return a JSON structure that

@@ -710,25 +710,36 @@ exports.buildTokenRequest = buildTokenRequest;
  * authorization flow.
  */
 function completeAuth() {
-    debug("Completing the code flow");
-    var state = lib_1.urlParam("state");
-    var code = lib_1.urlParam("code");
-    var cached = getState(state);
-    var requestOptions = buildTokenRequest(code, cached);
-    // The EHR authorization server SHALL return a JSON structure that
-    // includes an access token or a message indicating that the
-    // authorization request has been denied.
-    return fetch(cached.tokenUri, requestOptions)
-        .then(function (resp) { return resp.json(); })
-        .then(function (data) {
-        debug("Received tokenResponse. Saving it to the state...");
-        cached.tokenResponse = data;
-        setState(state, cached);
-        return new Client_1["default"](cached);
-    })["catch"](function (error) {
-        // TODO: handle (humanize) token error
-        // console.log(error.message);
-        throw error;
+    return tslib_1.__awaiter(this, void 0, void 0, function () {
+        var state, code, cached, requestOptions;
+        return tslib_1.__generator(this, function (_a) {
+            debug("Completing the code flow");
+            state = lib_1.urlParam("state");
+            code = lib_1.urlParam("code");
+            if (!state) {
+                throw new Error('No "state" parameter found in the URL');
+            }
+            if (!code) {
+                throw new Error('No "code" parameter found in the URL');
+            }
+            cached = getState(state);
+            requestOptions = buildTokenRequest(code, cached);
+            // The EHR authorization server SHALL return a JSON structure that
+            // includes an access token or a message indicating that the
+            // authorization request has been denied.
+            return [2 /*return*/, fetch(cached.tokenUri, requestOptions)
+                    .then(function (resp) { return resp.json(); })
+                    .then(function (data) {
+                    debug("Received tokenResponse. Saving it to the state...");
+                    cached.tokenResponse = data;
+                    setState(state, cached);
+                    return new Client_1["default"](cached);
+                })["catch"](function (error) {
+                    // TODO: handle (humanize) token error
+                    // console.log(error.message);
+                    throw error;
+                })];
+        });
     });
 }
 exports.completeAuth = completeAuth;
