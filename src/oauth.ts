@@ -83,6 +83,11 @@ export function authorize(options: NS.ClientOptions, loc: Location = location): 
  * or options.serverUrl. Then compiles the proper authorization URL for that server.
  * For open servers that URL is the options.redirectUri so that we can skip the
  * authorization part.
+ *
+ * The following flows are possible:
+ * 1. EHR Launch        - pass "iss" and "launch" URL params
+ * 2. Standalone Launch - pass "serverUrl" as option
+ * 3. Test Launch       - pass "serverUrl" as URL param (takes precedence over #2)
  */
 export function buildAuthorizeUrl(options: NS.ClientOptions, loc: Location = location): Promise<string> {
     const launch         = urlParam("launch"        , { location: loc });
@@ -201,11 +206,13 @@ export function buildTokenRequest(code: string, state: FhirClient.ClientState): 
         body: `code=${code}&grant_type=authorization_code&redirect_uri=${encodeURIComponent(state.redirectUri)}`
     };
 
-    // For public apps, authentication is not possible (and thus not
-    // required), since the app cannot be trusted to protect a secret.
-    // For confidential apps, an Authorization header using HTTP Basic
-    // authentication is required, where the username is the app’s client_id
-    // and the password is the app’s client_secret
+    // For public apps, authentication is not possible (and thus not required),
+    // since a client with no secret cannot prove its identity when it issues a
+    // call. (The end-to-end system can still be secure because the client comes
+    // from a known, https protected endpoint specified and enforced by the
+    // redirect uri.) For confidential apps, an Authorization header using HTTP
+    // Basic authentication is required, where the username is the app’s
+    // client_id and the password is the app’s client_secret (see example).
     if (state.clientSecret) {
         requestOptions.headers.Authorization = "Basic " + btoa(
             state.clientId + ":" + state.clientSecret
@@ -252,11 +259,24 @@ export async function completeAuth(): Promise<Client> {
             debug(`Received tokenResponse. Saving it to the state...`);
             cached.tokenResponse = data;
             setState(state as string, cached);
-            return new Client(cached);
+            return cached;
         })
+        .then(stored => waitForDomReady(stored))
+        .then(stored => new Client(stored as NS.ClientState))
         .catch(error => {
             // TODO: handle (humanize) token error
             // console.log(error.message);
             throw error;
         });
+}
+
+function waitForDomReady(...args) {
+    return new Promise(resolve => {
+        if (document.readyState == "complete") {
+            resolve(...args);
+        }
+        else {
+            setTimeout(() => waitForDomReady(...args), 100);
+        }
+    });
 }

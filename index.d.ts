@@ -3,6 +3,9 @@ declare global {
     interface Window {
         FHIR: any;
     }
+    interface Window {
+        SMART: any;
+    }
 }
 
 export namespace FhirClient {

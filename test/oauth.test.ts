@@ -9,7 +9,8 @@ import { JSDOM }                   from "jsdom";
 
 
 interface ExtendedGlobal extends NodeJS.Global {
-    document: any;
+    document: Document;
+    window: Window;
     sessionStorage: any;
     location: Location;
     btoa: (str: string) => string;
@@ -87,6 +88,7 @@ describe("oauth", () => {
             url: "http://localhost/a/b/c",
         });
 
+        (global as ExtendedGlobal).window   = dom.window;
         (global as ExtendedGlobal).document = dom.window.document;
         (global as ExtendedGlobal).location = dom.window.location;
         (global as ExtendedGlobal).btoa = str => {
@@ -99,6 +101,7 @@ describe("oauth", () => {
         delete (global as ExtendedGlobal).document;
         delete (global as ExtendedGlobal).location;
         delete (global as ExtendedGlobal).btoa;
+        delete (global as ExtendedGlobal).window;
     });
 
     describe("fetchConformanceStatement", () => {

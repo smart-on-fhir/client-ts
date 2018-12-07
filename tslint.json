@@ -23,7 +23,8 @@
         "member-ordering": false,
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
         "interface-name": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "curly": false
     },
     "rulesDirectory": []
 }

@@ -1,9 +1,63 @@
-import { FhirClient as NS } from "..";
+import { FhirClient as NS, fhir } from "..";
 // import Adapter              from "./adapter";
 // import fhir                from "fhir.js";
-import fhir                from "fhir.js/src/adapters/native";
+// import fhir                from "fhir.js/src/adapters/native";
 // import makeFhir             from "fhir.js/src/fhir.js";
-// import { urlToAbsolute, getPath } from "./lib";
+import { getPath } from "./lib";
+
+declare global {
+    interface Window {
+        fhir?: (options?: any) => any;
+    }
+}
+
+interface FhirJsAPI {
+    [key: string]: any;
+}
+
+interface Patient {
+    id: string;
+    read: () => Promise<fhir.Resource>;
+    api?: FhirJsAPI;
+}
+
+interface Encounter {
+    id: string;
+    read: () => Promise<fhir.Resource>;
+}
+
+interface User {
+    id: string;
+    type: string; // Patient, Practitioner, RelatedPerson...
+    read: () => Promise<fhir.Resource>;
+}
+
+interface IDToken {
+    profile: string;
+    aud: string;
+    sub: string;
+    iss: string;
+    iat: number;
+    exp: number;
+    [key: string]: any;
+}
+
+function absolute(path, serverUrl) {
+    if (path.match(/^(http|urn)/)) return path;
+    return [
+        serverUrl.replace(/\/$\s*/, ""),
+        path.replace(/^\s*\//, "")
+    ].join("/");
+}
+
+function checkResponse(resp: Response): Promise<Response> {
+    return new Promise((resolve, reject) => {
+        if (resp.status < 200 || resp.status > 399) {
+            reject(resp);
+        }
+        resolve(resp);
+    });
+}
 
 /**
  * A SMART Client instance will simplify some tasks for you. It will authorize
@@ -17,7 +71,22 @@ export default class Client
      */
     protected state: NS.ClientState;
 
-    // protected fhirJs: any;
+    /**
+     * The currently selected patient (if any)
+     */
+    public patient: Patient | null = null;
+
+    /**
+     * The currently logged-in user (if any)
+     */
+    public user: User | null = null;
+
+    /**
+     * The currently selected encounter (if any and if supported by the EHR)
+     */
+    public encounter: Encounter | null = null;
+
+    public api?: FhirJsAPI;
 
     constructor(state: NS.ClientState)
     {
@@ -28,19 +97,60 @@ export default class Client
         }
         this.state = state;
 
-        // const accessToken = getPath(this.state, "tokenResponse.access_token");
+        // Context (patient, user, encounter)
+        const patientId   = getPath(this.state, "tokenResponse.patient");
+        const encounterId = getPath(this.state, "tokenResponse.encounter");
+        const idToken     = getPath(this.state, "tokenResponse.id_token");
 
-        if (typeof fhir == "function") {
-            this.api = fhir({
-                baseUrl: state.serverUrl
-            });
+        if (patientId) {
+            this.patient = {
+                id: patientId,
+                read: () => this.request(`Patient/${patientId}`).then(r => r.json())
+            };
         }
-        // this.fhirJs = makeFhir({
-        //     baseUrl: state.serverUrl,
-        //     auth: accessToken ?
-        //         { bearer: accessToken } :
-        //         {}
-        // });
+
+        if (encounterId) {
+            this.encounter = {
+                id: encounterId,
+                read: () => this.request(`Encounter/${encounterId}`).then(r => r.json())
+            };
+        }
+
+        if (idToken) {
+            const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
+            const type = idTokenValue.profile.split("/").shift();
+            const id   = idTokenValue.profile.split("/").pop();
+
+            this.user = {
+                type,
+                id,
+                read() {
+                    return this.request(`${type}/${id}`);
+                }
+            };
+        }
+
+
+        // Set up Fhir.js API if "fhir" is available in the global scope
+        if (typeof window.fhir == "function") {
+            const accessToken = getPath(this.state, "tokenResponse.access_token");
+            const auth = accessToken ?
+                { type: "bearer", bearer: accessToken } :
+                { type: "none" };
+
+            this.api = window.fhir({
+                baseUrl: state.serverUrl,
+                auth
+            });
+
+            if (this.patient) {
+                this.patient.api = window.fhir({
+                    baseUrl: state.serverUrl,
+                    patient: patientId,
+                    auth
+                });
+            }
+        }
     }
 
     /**
@@ -49,32 +159,44 @@ export default class Client
      * 2. Automatically authorize requests with your accessToken (if any)
      * 3. Automatically re-authorize using the refreshToken (if available)
      * 4. Automatically parse error operation outcomes and turn them into
-     *   JavaScript Error objects with which the resulting promises are rejected
+     *    JavaScript Error objects with which the resulting promises are rejected
      * @param {string} url the URL to fetch
      * @param {object} options fetch options
      */
-    public request(url: string, options: any = {})
+    public request(url: string, options: any = {}): Promise<Response>
     {
-        url = this.state.serverUrl.replace(/\/?$/, "/") + url.replace(/^\//, "");
-        // cfg.url = urlToAbsolute(cfg.url, location);
+        url = absolute(url, this.state.serverUrl);
 
-    //     // If we are talking to protected fhir server we should have an access token
-    //     const accessToken = getPath(this.state, "tokenResponse.access_token");
-    //     if (accessToken) {
-    //         cfg.headers = {
-    //             ...cfg.headers,
-    //             Authorization: `Bearer ${accessToken}`
-    //         };
-    //     }
+        // If we are talking to protected fhir server we should have an access token
+        const accessToken = getPath(this.state, "tokenResponse.access_token");
+        if (accessToken) {
+            options.headers = {
+                ...options.headers,
+                Authorization: `Bearer ${accessToken}`
+            };
+        }
 
-        return fetch(url, options);
+        return fetch(url, options).then(checkResponse).catch(
+            () => Promise.reject(`Could not fetch "${url}"`)
+        );
     }
 
-    // public get(p) {}
+    // public get(p)
+    // {
+    //     if (this.api) {
+    //         const params = {
+    //             type: p.resource,
+    //             id: p.id || undefined
+    //         };
+    //         return this.api.read(params)
+    //             .then(res => res.data)
+    //             .catch(() => Promise.reject("Could not fetch " + p.resource + " " + p.id));
+    //     }
 
-    // public getBinary(url) {}
-
-    // public fetchBinary(path) {}
-
-    // public authenticated(p) {}
+    //     let url = p.resource;
+    //     if (p.id) {
+    //         url += "/" + p.id;
+    //     }
+    //     return this.request(url);
+    // }
 }
