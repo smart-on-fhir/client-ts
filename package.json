@@ -44,10 +44,8 @@
   },
   "dependencies": {
     "Base64": "^1.0.1",
-    "btoa": "^1.2.1",
     "fhir.js": "0.0.20",
     "jquery": "^3.3.1",
-    "jsonwebtoken": "^8.4.0",
     "whatwg-fetch": "^3.0.0"
   },
   "sideEffects": false
