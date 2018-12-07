@@ -1,6 +1,7 @@
 import { FhirClient as NS } from "..";
 // import Adapter              from "./adapter";
-// import makeFhir             from "fhir.js";
+// import fhir                from "fhir.js";
+import fhir                from "fhir.js/src/adapters/native";
 // import makeFhir             from "fhir.js/src/fhir.js";
 // import { urlToAbsolute, getPath } from "./lib";
 
@@ -29,6 +30,11 @@ export default class Client
 
         // const accessToken = getPath(this.state, "tokenResponse.access_token");
 
+        if (typeof fhir == "function") {
+            this.api = fhir({
+                baseUrl: state.serverUrl
+            });
+        }
         // this.fhirJs = makeFhir({
         //     baseUrl: state.serverUrl,
         //     auth: accessToken ?
