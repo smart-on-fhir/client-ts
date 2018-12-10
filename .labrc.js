@@ -69,7 +69,9 @@ module.exports = {
     // prevent recursive collection of tests within the provided path
     flat: true,
 
-    // -g, --grep      only run tests matching the given pattern which is internally compiled to a RegExp
+    // only run tests matching the given pattern which is internally compiled to a RegExp
+    // grep: "High-level API",
+
     // -i, --id        test identifier
     // --inspect       starts lab with the node.js native debugger
 

@@ -31,10 +31,6 @@ describe("Client", () => {
         expect(() => new Client(undefined)).to.throw(Error, "No state provided to the client");
     });
 
-    it ("patient", null);
-    it ("user", null);
-    it ("encounter", null);
-
     it ("client.request can be used with string argument", () => {
         const client = new Client({
             serverUrl: "https://r3.smarthealthit.org"
@@ -49,6 +45,16 @@ describe("Client", () => {
         expect(client.request("/metadata", { method: "GET" })).not.to.reject();
     });
 
+    it ("works without authorization", () => {
+        const client = new Client({
+            serverUrl: "https://r3.smarthealthit.org"
+        } as FhirClient.ClientState);
+        expect(client.request("/Patient", { method: "GET" })).not.to.reject();
+    });
+
+    it ("patient", null);
+    it ("user", null);
+    it ("encounter", null);
     it ("fhir.js api", null);
     it ("fhir.js patient.api", null);
 
