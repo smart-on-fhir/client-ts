@@ -313,29 +313,14 @@ function __importDefault(mod) {
 
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+var Storage_1 = __webpack_require__(/*! ./Storage */ "./src/Storage.ts");
 // import Adapter              from "./adapter";
 // import fhir                from "fhir.js";
 // import fhir                from "fhir.js/src/adapters/native";
 // import makeFhir             from "fhir.js/src/fhir.js";
 var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
-function absolute(path, serverUrl) {
-    if (path.match(/^(http|urn)/))
-        return path;
-    return [
-        serverUrl.replace(/\/$\s*/, ""),
-        path.replace(/^\s*\//, "")
-    ].join("/");
-}
-function checkResponse(resp) {
-    return new Promise(function (resolve, reject) {
-        if (resp.status < 200 || resp.status > 399) {
-            reject(resp);
-        }
-        resolve(resp);
-    });
-}
 /**
  * A SMART Client instance will simplify some tasks for you. It will authorize
  * requests automatically, use refresh tokens, handle errors and so on.
@@ -419,18 +404,123 @@ var Client = /** @class */ (function () {
      * @param {object} options fetch options
      */
     Client.prototype.request = function (url, options) {
+        var _this = this;
         if (options === void 0) { options = {}; }
-        url = absolute(url, this.state.serverUrl);
+        url = lib_1.resolve(url, this.state.serverUrl);
         // If we are talking to protected fhir server we should have an access token
         var accessToken = lib_1.getPath(this.state, "tokenResponse.access_token");
         if (accessToken) {
             options.headers = tslib_1.__assign({}, options.headers, { Authorization: "Bearer " + accessToken });
         }
-        return fetch(url, options).then(checkResponse)["catch"](function () { return Promise.reject("Could not fetch \"" + url + "\""); });
+        return fetch(url, options)
+            .then(function (resp) {
+            if (resp.status == 401 && lib_1.getPath(_this.state, "tokenResponse.refresh_token")) {
+                return _this.refresh().then(function () { return _this.request(url, options); });
+            }
+            return resp;
+        })
+            .then(lib_1.checkResponse)
+            .catch(function () { return Promise.reject(new Error("Could not fetch \"" + url + "\"")); });
+    };
+    /**
+     * Use the refresh token to obtain new access token. If the refresh token is
+     * expired (or this fails for any other reason) it will be deleted from the
+     * state, so that we don't enter into loops trying to re-authorize.
+     */
+    Client.prototype.refresh = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var refreshToken;
+            var _this = this;
+            return tslib_1.__generator(this, function (_a) {
+                refreshToken = lib_1.getPath(this.state, "tokenResponse.refresh_token");
+                if (!refreshToken) {
+                    throw new Error("Trying to refresh but there is no refresh token");
+                }
+                return [2 /*return*/, fetch(this.state.tokenUri, {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/x-www-form-urlencoded"
+                        },
+                        body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(refreshToken)
+                    })
+                        .then(lib_1.checkResponse)
+                        .then(function (resp) { return resp.json(); })
+                        .then(function (json) {
+                        _this.state.tokenResponse = tslib_1.__assign({}, _this.state.tokenResponse, json);
+                        // Save this change into the sessionStorage
+                        Storage_1.default.set(_this.state);
+                    })
+                        .catch(function (error) {
+                        lib_1.debug(error);
+                        lib_1.debug("Deleting the expired or invalid refresh token");
+                        delete _this.state.tokenResponse.refresh_token;
+                    })];
+            });
+        });
     };
     return Client;
 }());
-exports["default"] = Client;
+exports.default = Client;
+
+
+/***/ }),
+
+/***/ "./src/Storage.ts":
+/*!************************!*\
+  !*** ./src/Storage.ts ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
+var KEY = "smartId";
+function key() {
+    return sessionStorage.getItem(KEY);
+}
+function getState() {
+    var smartId = key();
+    if (!smartId) {
+        console.warn("sessionStorage[\"" + KEY + "\"] is missing or empty");
+        return null;
+    }
+    var cached = sessionStorage.getItem(smartId);
+    if (!cached) {
+        console.warn("No state found by the given id (" + smartId + ")");
+        return null;
+    }
+    try {
+        return JSON.parse(cached);
+    }
+    catch (_) {
+        console.warn("Corrupt state: sessionStorage['" + KEY + "'] cannot be parsed as JSON.");
+        return null;
+    }
+}
+exports.default = {
+    key: function () { return key(); },
+    get: function (path) {
+        if (path === void 0) { path = ""; }
+        var state = getState();
+        if (path) {
+            return lib_1.getPath(state || {}, path);
+        }
+        return state;
+    },
+    set: function (data) {
+        sessionStorage.setItem(key(), JSON.stringify(data));
+    },
+    extend: function (data) {
+        var state = getState() || {};
+        sessionStorage.setItem(key(), JSON.stringify(tslib_1.__assign({ state: state }, data)));
+    },
+    clear: function () {
+        sessionStorage.removeItem(key());
+    }
+};
 
 
 /***/ }),
@@ -444,11 +534,11 @@ exports["default"] = Client;
 
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 // import "whatwg-fetch";
 var oAuth2 = __webpack_require__(/*! ./oauth */ "./src/oauth.ts");
 // New API ---------------------------------------------------------------------
-window.SMART = {
+exports.SMART = {
     /**
      * Starts the authorization flow (redirects to the auth uri). This should be
      * called on the page that represents your launch_uri.
@@ -461,20 +551,16 @@ window.SMART = {
      * Completes the authorization flow. This should be called on the page that
      * represents your redirect_uri.
      */
-    ready: function () {
-        return oAuth2.completeAuth();
-    },
+    // ready: oAuth2.ready,
     /**
      * Calls `authorize` or `ready` depending on the URL parameters. Can be used
      * to handle everything in one page (when the launch_uri and redirect_uri of
      * your smart client are the same)
      */
-    init: function (options) {
-        // todo...
-    }
+    init: oAuth2.init
 };
 // Legacy API ------------------------------------------------------------------
-window.FHIR = {
+exports.FHIR = {
     oAuth2: {
         settings: {
             replaceBrowserHistory: true,
@@ -483,11 +569,12 @@ window.FHIR = {
         authorize: function (options) {
             return oAuth2.authorize(options);
         },
-        ready: function () {
-            return oAuth2.completeAuth();
-        }
     }
 };
+if (typeof window !== "undefined") {
+    window.SMART = exports.SMART;
+    window.FHIR = exports.FHIR;
+}
 
 
 /***/ }),
@@ -504,7 +591,8 @@ window.FHIR = {
 // This is the shared static library, meaning that it is simple collection of
 // pure functions. It is important for these function to not have side effects
 // so that the file behaves well with tree-shaking (and is fully testable).
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /**
  * Walks through an object (or array) and returns the value found at the
  * provided path. This function is very simple so it intentionally does not
@@ -574,6 +662,19 @@ function urlToAbsolute(url, doc) {
     return a.href;
 }
 exports.urlToAbsolute = urlToAbsolute;
+function resolve(path, serverUrl) {
+    if (serverUrl === void 0) { serverUrl = ""; }
+    if (!serverUrl) {
+        return urlToAbsolute(path);
+    }
+    if (path.match(/^(http|urn)/))
+        return path;
+    return [
+        serverUrl.replace(/\/$\s*/, ""),
+        path.replace(/^\s*\//, "")
+    ].join("/");
+}
+exports.resolve = resolve;
 function randomString(strLength, charSet) {
     if (strLength === void 0) { strLength = 8; }
     if (charSet === void 0) { charSet = null; }
@@ -588,6 +689,77 @@ function randomString(strLength, charSet) {
     return result.join("");
 }
 exports.randomString = randomString;
+function checkResponse(resp) {
+    return tslib_1.__awaiter(this, void 0, void 0, function () {
+        return tslib_1.__generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!!resp.ok) return [3 /*break*/, 2];
+                    return [4 /*yield*/, humanizeError(resp)];
+                case 1: throw (_a.sent());
+                case 2: return [2 /*return*/, resp];
+            }
+        });
+    });
+}
+exports.checkResponse = checkResponse;
+function humanizeError(resp) {
+    return tslib_1.__awaiter(this, void 0, void 0, function () {
+        var json, msg, _1, text, _2;
+        return tslib_1.__generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    msg = resp.status + " " + resp.statusText;
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 8]);
+                    return [4 /*yield*/, resp.json()];
+                case 2:
+                    json = _a.sent();
+                    if (json.error) {
+                        msg += "\n" + json.error;
+                        if (json.error_description) {
+                            msg += ": " + json.error_description;
+                        }
+                    }
+                    else {
+                        msg += "\n" + json;
+                    }
+                    return [3 /*break*/, 8];
+                case 3:
+                    _1 = _a.sent();
+                    _a.label = 4;
+                case 4:
+                    _a.trys.push([4, 6, , 7]);
+                    return [4 /*yield*/, resp.text()];
+                case 5:
+                    text = _a.sent();
+                    if (text) {
+                        msg += "\n" + text;
+                    }
+                    return [3 /*break*/, 7];
+                case 6:
+                    _2 = _a.sent();
+                    return [3 /*break*/, 7];
+                case 7: return [3 /*break*/, 8];
+                case 8: throw new Error(msg);
+            }
+        });
+    });
+}
+exports.humanizeError = humanizeError;
+// $lab:coverage:off$
+function debug() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    if (sessionStorage.debug) {
+        console.log.apply(console, args);
+    }
+}
+exports.debug = debug;
+// $lab:coverage:on$
 
 
 /***/ }),
@@ -601,30 +773,22 @@ exports.randomString = randomString;
 
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
-// import { btoa }                                from "Base64";
 var Client_1 = __webpack_require__(/*! ./Client */ "./src/Client.ts");
+var Storage_1 = __webpack_require__(/*! ./Storage */ "./src/Storage.ts");
 var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
-// $lab:coverage:off$
-function debug() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    if (sessionStorage.debug) {
-        console.log.apply(console, args);
-    }
-}
-// $lab:coverage:on$
 function fetchConformanceStatement(baseUrl) {
     if (!baseUrl) {
         baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
     }
     var url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
-    return fetch(url).then(function (resp) { return resp.json(); })["catch"](function (ex) {
-        debug(ex);
-        throw new Error("Failed to fetch the conformance statement from \"" + url + "\"");
+    return fetch(url)
+        .then(lib_1.checkResponse)
+        .then(function (resp) { return resp.json(); })
+        .catch(function (ex) {
+        lib_1.debug(ex);
+        throw new Error("Failed to fetch the conformance statement from \"" + url + "\". " + ex);
     });
 }
 exports.fetchConformanceStatement = fetchConformanceStatement;
@@ -660,14 +824,13 @@ function getSecurityExtensions(metadata) {
 exports.getSecurityExtensions = getSecurityExtensions;
 /**
  * Calls the buildAuthorizeUrl function to construct the redirect URL and then
- * just redirects to it.
+ * just redirects to it. Note that the returned promise will either be rejected
+ * in case of error, or it will never be resolved because the page wil redirect.
  */
 function authorize(options, loc) {
+    if (options === void 0) { options = {}; }
     if (loc === void 0) { loc = location; }
-    debug("Authorizing...");
-    return buildAuthorizeUrl(options, loc)
-        .then(function (redirect) {
-        debug("Making authorize redirect to " + redirect);
+    return buildAuthorizeUrl(options, loc).then(function (redirect) {
         try {
             loc.href = redirect;
         }
@@ -690,11 +853,34 @@ exports.authorize = authorize;
  * 3. Test Launch       - pass "serverUrl" as URL param (takes precedence over #2)
  */
 function buildAuthorizeUrl(options, loc) {
+    if (options === void 0) { options = {}; }
     if (loc === void 0) { loc = location; }
+    var iss = lib_1.urlParam("iss", { location: loc }) || "";
+    var fhirServiceUrl = lib_1.urlParam("fhirServiceUrl", { location: loc }) || "";
+    var cfg;
+    var serverUrl = String(iss || fhirServiceUrl || "");
+    if (Array.isArray(options)) {
+        // TODO: find cfg
+        cfg = options.find(function (o) {
+            if (typeof o.iss == "string") {
+                return o.iss === iss || o.iss === fhirServiceUrl;
+            }
+            if (o.iss instanceof RegExp) {
+                return (iss && o.iss.test(iss)) ||
+                    (fhirServiceUrl && o.iss.test(fhirServiceUrl));
+            }
+        });
+        if (!cfg) {
+            return Promise.reject(new Error("None of the provided configurations matched the current server \"" + serverUrl + "\""));
+        }
+    }
+    else {
+        cfg = options;
+        if (!serverUrl) {
+            serverUrl = String(cfg.serverUrl || "");
+        }
+    }
     var launch = lib_1.urlParam("launch", { location: loc });
-    var iss = lib_1.urlParam("iss", { location: loc });
-    var fhirServiceUrl = lib_1.urlParam("fhirServiceUrl", { location: loc });
-    var serverUrl = String(iss || fhirServiceUrl || options.serverUrl || "");
     if (iss && !launch) {
         return Promise.reject(new Error("Missing url parameter \"launch\""));
     }
@@ -702,23 +888,27 @@ function buildAuthorizeUrl(options, loc) {
         return Promise.reject(new Error("No server url found. It must be specified as query.iss or " +
             "query.fhirServiceUrl or options.serverUrl (in that order)"));
     }
-    debug("Looking up the authorization endpoint for \"" + serverUrl + "\"");
+    lib_1.debug("Looking up the authorization endpoint for \"" + serverUrl + "\"");
     return fetchConformanceStatement(serverUrl).then(function (metadata) {
         var extensions = getSecurityExtensions(metadata);
-        debug("Found security extensions: ", extensions);
         // Prepare the object that will be stored in the session
-        var state = tslib_1.__assign({ serverUrl: serverUrl, clientId: options.clientId, redirectUri: lib_1.urlToAbsolute(options.redirectUri || "."), scope: options.scope || "" }, extensions);
-        if (options.clientSecret) {
-            debug("Adding clientSecret to the state");
-            state.clientSecret = options.clientSecret;
+        var state = tslib_1.__assign({ serverUrl: serverUrl, clientId: cfg.clientId, redirectUri: lib_1.urlToAbsolute(cfg.redirectUri || "."), scope: cfg.scope || "" }, extensions);
+        if (cfg.clientSecret) {
+            state.clientSecret = cfg.clientSecret;
         }
+        // Create an unique key and use it to store the state
         var id = lib_1.randomString(32);
         sessionStorage.setItem(id, JSON.stringify(state));
-        // sessionStorage.setItem(tokenResponse, JSON.stringify(state));
+        // In addition, save the random key to a well-known location. This way
+        // the page knows how to find it after reload and restore it's client
+        // state from there.
+        sessionStorage.setItem("smartId", id);
         var redirectUrl = state.redirectUri;
-        // debug(state);
         if (state.authorizeUri) {
-            debug("authorizeUri: " + state.authorizeUri);
+            if (!cfg.clientId) {
+                throw new Error("A \"clientId\" option is required by this server");
+            }
+            lib_1.debug("authorizeUri: " + state.authorizeUri);
             var params = [
                 "response_type=code",
                 "client_id=" + encodeURIComponent(state.clientId),
@@ -737,27 +927,6 @@ function buildAuthorizeUrl(options, loc) {
     });
 }
 exports.buildAuthorizeUrl = buildAuthorizeUrl;
-function getState(id) {
-    if (!id) {
-        throw new Error("Cannot look up state by the given id (" + id + ")");
-    }
-    var cached = sessionStorage.getItem(id);
-    if (!cached) {
-        throw new Error("No state found by the given id (" + id + ")");
-    }
-    try {
-        var json = JSON.parse(cached);
-        return json;
-    }
-    catch (_) {
-        throw new Error("Corrupt state: sessionStorage['" + id + "'] cannot be parsed as JSON.");
-    }
-}
-exports.getState = getState;
-function setState(key, value) {
-    sessionStorage.setItem(key, JSON.stringify(value));
-}
-exports.setState = setState;
 /**
  * Builds the token request options for axios. Does not make the request, just
  * creates it's configuration and returns it in a Promise.
@@ -793,10 +962,10 @@ function buildTokenRequest(code, state) {
     // client_id and the password is the app’s client_secret (see example).
     if (state.clientSecret) {
         requestOptions.headers.Authorization = "Basic " + btoa(state.clientId + ":" + state.clientSecret);
-        debug("Using state.clientSecret to construct the authorization header: \"" + requestOptions.headers.Authorization + "\"");
+        lib_1.debug("Using state.clientSecret to construct the authorization header: \"" + requestOptions.headers.Authorization + "\"");
     }
     else {
-        debug("No clientSecret found in state. Adding client_id to the POST body");
+        lib_1.debug("No clientSecret found in state. Adding client_id to the POST body");
         // requestOptions.data.client_id = state.clientId;
         requestOptions.body += "&client_id=" + encodeURIComponent(state.clientId);
     }
@@ -809,41 +978,85 @@ exports.buildTokenRequest = buildTokenRequest;
  * authorization flow.
  */
 function completeAuth() {
-    return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var state, code, cached, requestOptions;
-        return tslib_1.__generator(this, function (_a) {
-            debug("Completing the code flow");
-            state = lib_1.urlParam("state");
-            code = lib_1.urlParam("code");
-            if (!state) {
-                throw new Error('No "state" parameter found in the URL');
-            }
-            if (!code) {
-                throw new Error('No "code" parameter found in the URL');
-            }
-            cached = getState(state);
-            requestOptions = buildTokenRequest(code, cached);
-            // The EHR authorization server SHALL return a JSON structure that
-            // includes an access token or a message indicating that the
-            // authorization request has been denied.
-            return [2 /*return*/, fetch(cached.tokenUri, requestOptions)
-                    .then(function (resp) { return resp.json(); })
-                    .then(function (data) {
-                    debug("Received tokenResponse. Saving it to the state...");
-                    cached.tokenResponse = data;
-                    setState(state, cached);
-                    return cached;
-                })
-                    .then(function (stored) { return waitForDomReady(stored); })
-                    .then(function (stored) { return new Client_1["default"](stored); })["catch"](function (error) {
-                    // TODO: handle (humanize) token error
-                    // console.log(error.message);
-                    throw error;
-                })];
-        });
-    });
+    lib_1.debug("Completing the code flow");
+    // These are coming from the URL so make sure we validate them
+    var state = lib_1.urlParam("state");
+    var code = lib_1.urlParam("code");
+    // if (!state) throw new Error('No "state" parameter found in the URL');
+    // if (!code ) throw new Error('No "code" parameter found in the URL' );
+    // Remove the `code` and `state` params from the URL so that if the page is
+    // reloaded it won't have to re-authorize
+    if (window.history.replaceState) {
+        window.history.replaceState({}, "", location.href.replace(location.search, ""));
+    }
+    // We have received a `state` param that should be the sessionStorage key
+    // in which we store our state. But what if somebody passes `state` param
+    // manually and trick us to store the state on different location?
+    if (Storage_1.default.key() !== state) {
+        throw new Error("State key mismatch. Expected \"" + state + "\" but found \"" + Storage_1.default.key() + "\".");
+    }
+    var cached = Storage_1.default.get();
+    // state and code are coming from the page url so they might be empty or
+    // just invalid. In this case buildTokenRequest() will throw!
+    var requestOptions = buildTokenRequest(code, cached);
+    // The EHR authorization server SHALL return a JSON structure that
+    // includes an access token or a message indicating that the
+    // authorization request has been denied.
+    return fetch(cached.tokenUri, requestOptions)
+        .then(lib_1.checkResponse)
+        .then(function (resp) { return resp.json(); })
+        .then(function (data) {
+        lib_1.debug("Received tokenResponse. Saving it to the state...");
+        cached.tokenResponse = data;
+        Storage_1.default.set(cached);
+        return cached;
+    })
+        .then(function (stored) { return waitForDomReady(stored); })
+        .then(function (stored) { return new Client_1.default(stored); });
 }
 exports.completeAuth = completeAuth;
+function init(options) {
+    // if `code` and `state` params are present we need to complete the auth flow
+    if (lib_1.urlParam("state") && lib_1.urlParam("code")) {
+        return completeAuth();
+    }
+    // Check for existing client state. If state is found, it means a client
+    // instance have already been created in this session and we should try to
+    // "revive" it.
+    var cached = Storage_1.default.get();
+    if (cached) {
+        return Promise.resolve(new Client_1.default(cached));
+    }
+    // Otherwise try to launch
+    authorize(options).then(function () {
+        // `init` promises a Client but that cannot happen in this case. The
+        // browser will be redirected (unload the page and be redirected back
+        // to it later and the same init function will be called again). On
+        // success, authorize will resolve with the redirect url but we don't
+        // want to return that from this promise chain because it is not a
+        // Client instance. At the same time, if authorize fails, we do want to
+        // pass the error to those waiting for a client instance.
+        return new Promise(function () { });
+    });
+}
+exports.init = init;
+// export async function ready(): Promise<Client> {
+//     // First check for existing client state
+//     const cached = getState("smart");
+//     // If state is found, it means a client instance have already been created
+//     // in this session and we should try to revive it.
+//     if (cached) {
+//         return new Client(cached);
+//     }
+//     // If no state is found we should be visiting this page for the first time
+//     const state = urlParam("state");
+//     const code  = urlParam("code");
+//     // if `code` and `state` params are present we need to complete the auth flow
+//     if (state && code) {
+//         return completeAuth();
+//     }
+//     throw new Error("Unable to complete authentication. Please re-launch the application");
+// }
 function waitForDomReady() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {

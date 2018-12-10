@@ -5,22 +5,44 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>Fhir Client Example</title>
-        <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script src="jqFhir.js"></script>
+        <!-- <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="jqFhir.js"></script> -->
         <!-- <script src="https://cdn.rawgit.com/FHIR/fhir.js/v0.0.5/dist/jqFhir.js"></script> -->
         <script src="../dist/fhir-client.js"></script>
         <script>
 
-        FHIR.oAuth2.ready().then(client => {
-            console.log("FHIR: ", FHIR);
-            console.log("client: ", client);
-            window.client = client;
-            client.request("/Patient")
-            .then(res => res.json())
-            .then(data => {
-                console.log("Patient: ", data);
-            });
-        });
+            SMART.init({
+                serverUrl: "http://launch.smarthealthit.org/v/r2/fhir",
+                clientId : "whatever",
+                scope    : "patient/*.* user/*.* launch openid profile offline_access"
+            }).then(client => {
+                // console.log("FHIR: ", FHIR);
+                console.log("client: ", client);
+                window.client = client;
+                
+                return client.request("/Patient")
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log("Patient: ", data);
+                    });
+            })
+            // .catch(error => console.warn(error));
+
+        // FHIR.oAuth2.ready()
+        //     .then(client => {
+        //         console.log("FHIR: ", FHIR);
+        //         console.log("client: ", client);
+        //         window.client = client;
+                
+        //         return client.request("/Patient")
+        //             .then(res => res.json())
+        //             .then(data => {
+        //                 console.log("Patient: ", data);
+        //             });
+        //     })
+        //     .catch(error => console.log("Catch 1", typeof error, error))
+        //     .catch(error => console.log("Catch 2", typeof error, error));
+
         // const client = FHIR.oAuth2.authorize({
         //     clientId: "whatever",
         //     // redirectUri: "/"

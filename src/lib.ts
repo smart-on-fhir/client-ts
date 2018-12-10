@@ -75,6 +75,19 @@ export function urlToAbsolute(url, doc: Document = document) {
     return a.href;
 }
 
+export function resolve(path, serverUrl = "") {
+    if (!serverUrl) {
+        return urlToAbsolute(path);
+    }
+
+    if (path.match(/^(http|urn)/)) return path;
+
+    return [
+        serverUrl.replace(/\/$\s*/, ""),
+        path.replace(/^\s*\//, "")
+    ].join("/");
+}
+
 export function randomString(strLength = 8, charSet = null) {
     const result = [];
 
@@ -88,3 +101,47 @@ export function randomString(strLength = 8, charSet = null) {
     }
     return result.join("");
 }
+
+export async function checkResponse(resp: Response): Promise<Response> {
+    if (!resp.ok) {
+        throw (await humanizeError(resp));
+    }
+    return resp;
+}
+
+export async function humanizeError(resp: Response): Promise<Error> {
+    let json;
+    let msg = resp.status + " " + resp.statusText;
+
+    try {
+        json = await resp.json();
+        if (json.error) {
+            msg += "\n" + json.error;
+            if (json.error_description) {
+                msg += ": " + json.error_description;
+            }
+        }
+        else {
+            msg += "\n" + json;
+        }
+    } catch (_) {
+        try {
+            const text = await resp.text();
+            if (text) {
+                msg += "\n" + text;
+            }
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    throw new Error(msg);
+}
+
+// $lab:coverage:off$
+export function debug(...args) {
+    if (sessionStorage.debug) {
+        console.log(...args);
+    }
+}
+// $lab:coverage:on$

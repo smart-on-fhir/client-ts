@@ -1,9 +1,10 @@
 import { FhirClient as NS, fhir } from "..";
+import Storage from "./Storage";
 // import Adapter              from "./adapter";
 // import fhir                from "fhir.js";
 // import fhir                from "fhir.js/src/adapters/native";
 // import makeFhir             from "fhir.js/src/fhir.js";
-import { getPath } from "./lib";
+import { getPath, checkResponse, debug, resolve } from "./lib";
 
 declare global {
     interface Window {
@@ -42,22 +43,6 @@ interface IDToken {
     [key: string]: any;
 }
 
-function absolute(path, serverUrl) {
-    if (path.match(/^(http|urn)/)) return path;
-    return [
-        serverUrl.replace(/\/$\s*/, ""),
-        path.replace(/^\s*\//, "")
-    ].join("/");
-}
-
-function checkResponse(resp: Response): Promise<Response> {
-    return new Promise((resolve, reject) => {
-        if (resp.status < 200 || resp.status > 399) {
-            reject(resp);
-        }
-        resolve(resp);
-    });
-}
 
 /**
  * A SMART Client instance will simplify some tasks for you. It will authorize
@@ -165,7 +150,7 @@ export default class Client
      */
     public request(url: string, options: any = {}): Promise<Response>
     {
-        url = absolute(url, this.state.serverUrl);
+        url = resolve(url, this.state.serverUrl);
 
         // If we are talking to protected fhir server we should have an access token
         const accessToken = getPath(this.state, "tokenResponse.access_token");
@@ -176,27 +161,51 @@ export default class Client
             };
         }
 
-        return fetch(url, options).then(checkResponse).catch(
-            () => Promise.reject(`Could not fetch "${url}"`)
-        );
+        return fetch(url, options)
+            .then(resp => {
+                if (resp.status == 401 && getPath(this.state, "tokenResponse.refresh_token")) {
+                    return this.refresh().then(() => this.request(url, options));
+                }
+                return resp;
+            })
+            .then(checkResponse)
+            .catch(() => Promise.reject(new Error(`Could not fetch "${url}"`)));
     }
 
-    // public get(p)
-    // {
-    //     if (this.api) {
-    //         const params = {
-    //             type: p.resource,
-    //             id: p.id || undefined
-    //         };
-    //         return this.api.read(params)
-    //             .then(res => res.data)
-    //             .catch(() => Promise.reject("Could not fetch " + p.resource + " " + p.id));
-    //     }
+    /**
+     * Use the refresh token to obtain new access token. If the refresh token is
+     * expired (or this fails for any other reason) it will be deleted from the
+     * state, so that we don't enter into loops trying to re-authorize.
+     */
+    public async refresh(): Promise<void>
+    {
+        const refreshToken = getPath(this.state, "tokenResponse.refresh_token");
 
-    //     let url = p.resource;
-    //     if (p.id) {
-    //         url += "/" + p.id;
-    //     }
-    //     return this.request(url);
-    // }
+        if (!refreshToken) {
+            throw new Error("Trying to refresh but there is no refresh token");
+        }
+
+        return fetch(this.state.tokenUri, {
+            method: "POST",
+            headers: {
+                "content-type": "application/x-www-form-urlencoded"
+            },
+            body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`
+        })
+        .then(checkResponse)
+        .then(resp => resp.json())
+        .then(json => {
+            this.state.tokenResponse = {
+                ...this.state.tokenResponse,
+                ...json as NS.TokenResponse
+            };
+            // Save this change into the sessionStorage
+            Storage.set(this.state);
+        })
+        .catch(error => {
+            debug(error);
+            debug("Deleting the expired or invalid refresh token");
+            delete this.state.tokenResponse.refresh_token;
+        });
+    }
 }

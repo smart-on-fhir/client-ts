@@ -2,13 +2,79 @@
 declare global {
     interface Window {
         FHIR: any;
-    }
-    interface Window {
         SMART: any;
     }
 }
 
 export namespace FhirClient {
+
+    interface AuthorizeOptionSet {
+        /**
+         * The base URL of the Fhir server. If provided in the options, the app
+         * will be launch-able byy simply accessing your launch URI without
+         * requiring any parameters.
+         */
+        iss: string | RegExp;
+
+        /**
+         * The client_id that you should have obtained while registering your
+         * app with the auth server or EHR.
+         */
+        clientId?: string;
+
+        /**
+         * The URI to redirect to after successful authorization. This must be
+         * absolute path, relative to your site root, i.e. must begin with "/"
+         */
+        redirectUri?: string;
+
+        /**
+         * The access scopes that you need.
+         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         */
+        scope?: string;
+
+        /**
+         * Your client secret if you have one (for confidential clients)
+         */
+        clientSecret?: string;
+    }
+
+     /**
+     * Describes the options that one can/should pass to the functions that
+     * accept configuration argument
+     */
+    interface AuthorizeOptions {
+        /**
+         * The base URL of the Fhir server. If provided in the options, the app
+         * will be launch-able byy simply accessing your launch URI without
+         * requiring any parameters.
+         */
+        serverUrl?: string;
+
+        /**
+         * The client_id that you should have obtained while registering your
+         * app with the auth server or EHR.
+         */
+        clientId?: string;
+
+        /**
+         * The URI to redirect to after successful authorization. This must be
+         * absolute path, relative to your site root, i.e. must begin with "/"
+         */
+        redirectUri?: string;
+
+        /**
+         * The access scopes that you need.
+         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         */
+        scope?: string;
+
+        /**
+         * Your client secret if you have one (for confidential clients)
+         */
+        clientSecret?: string;
+    }
 
     /**
      * The three security endpoints that SMART servers might declare in the
@@ -50,13 +116,13 @@ export namespace FhirClient {
          * The client_id that you should have obtained while registering your
          * app with the auth server or EHR.
          */
-        clientId: string;
+        clientId?: string;
 
         /**
          * The URI to redirect to after successful authorization. This must be
          * absolute path, relative to your site root, i.e. must begin with "/"
          */
-        redirectUri: string;
+        redirectUri?: string;
 
         /**
          * The access scopes that you need.
