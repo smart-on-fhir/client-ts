@@ -102,17 +102,22 @@ export default class Client
         }
 
         if (idToken) {
-            const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
-            const type = idTokenValue.profile.split("/").shift();
-            const id   = idTokenValue.profile.split("/").pop();
-
-            this.user = {
-                type,
-                id,
-                read() {
-                    return this.request(`${type}/${id}`);
+            try {
+                const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
+                const fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+                const tokens   = fhirUser.split("/");
+                if (tokens.length > 1) {
+                    const id   = tokens.pop();
+                    const type = tokens.pop();
+                    this.user = {
+                        type,
+                        id,
+                        read: () => this.request(`${type}/${id}`).then(r => r.json())
+                    };
                 }
-            };
+            } catch (error) {
+                console.warn("Error parsing id_token:", error);
+            }
         }
 
 
@@ -203,9 +208,10 @@ export default class Client
             Storage.set(this.state);
         })
         .catch(error => {
-            debug(error);
-            debug("Deleting the expired or invalid refresh token");
+            // debug(error);
+            // debug("Deleting the expired or invalid refresh token");
             delete this.state.tokenResponse.refresh_token;
+            throw error;
         });
     }
 }

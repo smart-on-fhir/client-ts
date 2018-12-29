@@ -14,18 +14,18 @@ interface ExtendedGlobal extends NodeJS.Global {
     location: Location;
 }
 
+beforeEach(() => {
+    const dom = new JSDOM(``, { url: LOCATION });
+    (global as ExtendedGlobal).document = dom.window.document;
+    (global as ExtendedGlobal).location = dom.window.location;
+});
+
+afterEach(() => {
+    delete (global as ExtendedGlobal).document;
+    delete (global as ExtendedGlobal).location;
+});
+
 describe("lib", () => {
-
-    beforeEach(() => {
-        const dom = new JSDOM(``, { url: LOCATION });
-        (global as ExtendedGlobal).document = dom.window.document;
-        (global as ExtendedGlobal).location = dom.window.location;
-    });
-
-    afterEach(() => {
-        delete (global as ExtendedGlobal).document;
-        delete (global as ExtendedGlobal).location;
-    });
 
     describe("getPath", () => {
         it ("returns the first arg if no path", () => {
@@ -124,6 +124,28 @@ describe("lib", () => {
         });
     });
 
+    describe("resolve", () => {
+        it ("returns http, https or urn URI as is", () => {
+            [
+                "http://a/b/c",
+                "https://a/b/c",
+                "urn:a:b:c"
+            ].forEach(uri => {
+                expect(lib.resolve(uri)).to.equal(uri);
+            });
+        });
+
+        it ("if no serverUrl is provided returns URLs mounted to the current domain", () => {
+            expect(lib.resolve("/")).to.equal("http://localhost/");
+        });
+
+        it ("returns URLs mounted to the given domain", () => {
+            expect(lib.resolve("/", "http://google.com")).to.equal("http://google.com/");
+            expect(lib.resolve("/a/b/c", "http://google.com")).to.equal("http://google.com/a/b/c");
+            expect(lib.resolve("a/b/c", "http://google.com")).to.equal("http://google.com/a/b/c");
+        });
+    });
+
     describe("randomString", () => {
         it ("generates random strings", () => {
             const list = [];
@@ -149,4 +171,98 @@ describe("lib", () => {
         });
     });
 
+    describe("checkResponse", () => {
+        it ("rejects if not OK", () => {
+            expect(lib.checkResponse({
+                status: 404,
+                statusText: "Not Found",
+                ok: false
+            } as Response)).to.reject(Error, "404 Not Found");
+        });
+
+        it ("does not reject if OK", () => {
+            expect(lib.checkResponse({
+                status: 404,
+                statusText: "Not Found",
+                ok: true
+            } as Response)).to.not.reject();
+        });
+    });
+
+    describe("humanizeError", () => {
+        it ("can generate basic messages", () => {
+            expect(lib.humanizeError({
+                status: 404,
+                statusText: "Not Found"
+            } as Response)).to.reject(Error, "404 Not Found");
+        });
+
+        it ("can append text response to the basic message", () => {
+            const response = {
+                status: 404,
+                statusText: "Not Found",
+                text: async () => "file not found"
+            } as Response;
+
+            expect(lib.humanizeError(response)).to.reject(
+                Error,
+                "404 Not Found\nfile not found"
+            );
+        });
+
+        it ("works with empty text response", () => {
+            const response = {
+                status: 404,
+                statusText: "Not Found",
+                text: async () => ""
+            } as Response;
+
+            expect(lib.humanizeError(response)).to.reject(
+                Error,
+                "404 Not Found"
+            );
+        });
+
+        it ("works with json response", () => {
+            const response = {
+                status: 404,
+                statusText: "Not Found",
+                json: async () => "x"
+            } as Response;
+
+            expect(lib.humanizeError(response)).to.reject(
+                Error,
+                "404 Not Found\nx"
+            );
+        });
+
+        it ("works with json error responses", () => {
+            const response = {
+                status: 404,
+                statusText: "Not Found",
+                json: async () => ({ error: "json error" })
+            } as Response;
+
+            expect(lib.humanizeError(response)).to.reject(
+                Error,
+                "404 Not Found\njson error"
+            );
+        });
+
+        it ("includes json error descriptions", () => {
+            const response = {
+                status: 404,
+                statusText: "Not Found",
+                json: async () => ({
+                    error: "json error",
+                    error_description: "json error_description"
+                })
+            } as Response;
+
+            expect(lib.humanizeError(response)).to.reject(
+                Error,
+                "404 Not Found\njson error: json error_description"
+            );
+        });
+    });
 });

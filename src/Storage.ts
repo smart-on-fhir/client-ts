@@ -48,7 +48,7 @@ export default {
 
     extend(data) {
         const state = getState() || {};
-        sessionStorage.setItem(key(), JSON.stringify({ state, ...data }));
+        sessionStorage.setItem(key(), JSON.stringify({ ...state, ...data }));
     },
 
     clear() {

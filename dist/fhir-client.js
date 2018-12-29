@@ -363,16 +363,23 @@ var Client = /** @class */ (function () {
             };
         }
         if (idToken) {
-            var idTokenValue = JSON.parse(atob(idToken.split(".")[1]));
-            var type_1 = idTokenValue.profile.split("/").shift();
-            var id_1 = idTokenValue.profile.split("/").pop();
-            this.user = {
-                type: type_1,
-                id: id_1,
-                read: function () {
-                    return this.request(type_1 + "/" + id_1);
+            try {
+                var idTokenValue = JSON.parse(atob(idToken.split(".")[1]));
+                var fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+                var tokens = fhirUser.split("/");
+                if (tokens.length > 1) {
+                    var id_1 = tokens.pop();
+                    var type_1 = tokens.pop();
+                    this.user = {
+                        type: type_1,
+                        id: id_1,
+                        read: function () { return _this.request(type_1 + "/" + id_1).then(function (r) { return r.json(); }); }
+                    };
                 }
-            };
+            }
+            catch (error) {
+                console.warn("Error parsing id_token:", error);
+            }
         }
         // Set up Fhir.js API if "fhir" is available in the global scope
         if (typeof window.fhir == "function") {
@@ -451,9 +458,10 @@ var Client = /** @class */ (function () {
                         Storage_1.default.set(_this.state);
                     })
                         .catch(function (error) {
-                        lib_1.debug(error);
-                        lib_1.debug("Deleting the expired or invalid refresh token");
+                        // debug(error);
+                        // debug("Deleting the expired or invalid refresh token");
                         delete _this.state.tokenResponse.refresh_token;
+                        throw error;
                     })];
             });
         });
@@ -515,7 +523,7 @@ exports.default = {
     },
     extend: function (data) {
         var state = getState() || {};
-        sessionStorage.setItem(key(), JSON.stringify(tslib_1.__assign({ state: state }, data)));
+        sessionStorage.setItem(key(), JSON.stringify(tslib_1.__assign({}, state, data)));
     },
     clear: function () {
         sessionStorage.removeItem(key());
@@ -664,11 +672,10 @@ function urlToAbsolute(url, doc) {
 exports.urlToAbsolute = urlToAbsolute;
 function resolve(path, serverUrl) {
     if (serverUrl === void 0) { serverUrl = ""; }
-    if (!serverUrl) {
-        return urlToAbsolute(path);
-    }
     if (path.match(/^(http|urn)/))
         return path;
+    if (!serverUrl)
+        return urlToAbsolute(path);
     return [
         serverUrl.replace(/\/$\s*/, ""),
         path.replace(/^\s*\//, "")
@@ -705,7 +712,7 @@ function checkResponse(resp) {
 exports.checkResponse = checkResponse;
 function humanizeError(resp) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
-        var json, msg, _1, text, _2;
+        var msg, json, _1, text, _2;
         return tslib_1.__generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -742,7 +749,9 @@ function humanizeError(resp) {
                     _2 = _a.sent();
                     return [3 /*break*/, 7];
                 case 7: return [3 /*break*/, 8];
-                case 8: throw new Error(msg);
+                case 8: 
+                // msg += "\nURL: " + resp.url;
+                throw new Error(msg);
             }
         });
     });
@@ -860,7 +869,6 @@ function buildAuthorizeUrl(options, loc) {
     var cfg;
     var serverUrl = String(iss || fhirServiceUrl || "");
     if (Array.isArray(options)) {
-        // TODO: find cfg
         cfg = options.find(function (o) {
             if (typeof o.iss == "string") {
                 return o.iss === iss || o.iss === fhirServiceUrl;
@@ -993,7 +1001,7 @@ function completeAuth() {
     // in which we store our state. But what if somebody passes `state` param
     // manually and trick us to store the state on different location?
     if (Storage_1.default.key() !== state) {
-        throw new Error("State key mismatch. Expected \"" + state + "\" but found \"" + Storage_1.default.key() + "\".");
+        return Promise.reject(new Error("State key mismatch. Expected \"" + state + "\" but found \"" + Storage_1.default.key() + "\"."));
     }
     var cached = Storage_1.default.get();
     // state and code are coming from the page url so they might be empty or

@@ -6,6 +6,7 @@ import * as request                from "request";
 import { FhirClient, fhir }        from "..";
 import { urlParam, urlToAbsolute } from "../src/lib";
 import { JSDOM }                   from "jsdom";
+import Client from "../src/Client";
 
 
 interface ExtendedGlobal extends NodeJS.Global {
@@ -67,48 +68,45 @@ const adapterStub = {
     }
 };
 
+beforeEach(() => {
+    const _data = {};
+    (global as ExtendedGlobal).sessionStorage = {
+        setItem(id, value) {
+            _data[id] = value;
+        },
+        getItem(id) {
+            return _data[id];
+        },
+        get() {
+            return { ..._data };
+        }
+    };
+
+    const dom = new JSDOM(``, { url: "http://localhost/a/b/c", });
+
+    (global as ExtendedGlobal).window   = dom.window;
+    (global as ExtendedGlobal).document = dom.window.document;
+    (global as ExtendedGlobal).location = dom.window.location;
+    (global as ExtendedGlobal).btoa = str => {
+        return Buffer.from(str).toString("base64");
+    };
+});
+
+afterEach(() => {
+    delete (global as ExtendedGlobal).sessionStorage;
+    delete (global as ExtendedGlobal).document;
+    delete (global as ExtendedGlobal).location;
+    delete (global as ExtendedGlobal).btoa;
+    delete (global as ExtendedGlobal).window;
+});
 
 describe("oauth", () => {
 
-    beforeEach(() => {
-        const _data = {};
-        (global as ExtendedGlobal).sessionStorage = {
-            setItem(id, value) {
-                _data[id] = value;
-            },
-            getItem(id) {
-                return _data[id];
-            },
-            get() {
-                return { ..._data };
-            }
-        };
-
-        const dom = new JSDOM(``, {
-            url: "http://localhost/a/b/c",
-        });
-
-        (global as ExtendedGlobal).window   = dom.window;
-        (global as ExtendedGlobal).document = dom.window.document;
-        (global as ExtendedGlobal).location = dom.window.location;
-        (global as ExtendedGlobal).btoa = str => {
-            return Buffer.from(str).toString("base64");
-        };
-    });
-
-    afterEach(() => {
-        delete (global as ExtendedGlobal).sessionStorage;
-        delete (global as ExtendedGlobal).document;
-        delete (global as ExtendedGlobal).location;
-        delete (global as ExtendedGlobal).btoa;
-        delete (global as ExtendedGlobal).window;
-    });
-
     describe("fetchConformanceStatement", () => {
-        it ("rejects bad baseUrl values", () => {
-            expect(oauth.fetchConformanceStatement("")).to.reject();
-            expect(oauth.fetchConformanceStatement(null)).to.reject();
-            expect(oauth.fetchConformanceStatement("whatever")).to.reject();
+        it ("rejects bad baseUrl values", async () => {
+            await expect(oauth.fetchConformanceStatement("")).to.reject();
+            await expect(oauth.fetchConformanceStatement(null)).to.reject();
+            await expect(oauth.fetchConformanceStatement("whatever")).to.reject();
         });
 
         it ("without baseUrl fetches '/metadata' rooted at the current domain", () => {
@@ -332,9 +330,8 @@ describe("oauth", () => {
             expect(urlParam("launch", { location })).to.equal("123");
         });
 
-        it ("throws if location redirects are not possible", async () => {
-
-            await expect(oauth.authorize({
+        it ("throws if location redirects are not possible", () => {
+            expect(oauth.authorize({
                 // serverUrl       : "http://r3.smarthealthit.org",
                 clientId        : "my-client-id",
                 redirectUri     : "http://localhost/a/b/",
@@ -357,10 +354,71 @@ describe("oauth", () => {
 
     describe("buildAuthorizeUrl", () => {
 
-        it ("can work with the current location", () => {
-            expect(
-                oauth.buildAuthorizeUrl({} as FhirClient.ClientOptions)
-            ).to.reject(Error, /^No server url\b/i);
+        it ("supports multiple configuration", async () => {
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: /^https:\/\/google/
+            }], {
+                protocol: "http://",
+                host    : "localhost",
+                pathname: "/",
+                search  : "?iss=http://r3.smarthealthit.org&launch=123"
+            } as Location)).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
+
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: /^https:\/\/google/
+            }], {
+                protocol: "http://",
+                host    : "localhost",
+                pathname: "/",
+                search  : "?fhirServiceUrl=http://r3.smarthealthit.org"
+            } as Location)).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
+
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: /^http:\/\/launch\.smarthealthit\.org\/v\/r\d\/fhir\b/
+            }], {
+                protocol: "http://",
+                host    : "localhost",
+                pathname: "/",
+                search  : "?fhirServiceUrl=http://launch.smarthealthit.org/v/r2/fhir"
+            } as Location)).to.reject(
+                Error,
+                `A "clientId" option is required by this server`
+            );
+        });
+
+        it ("can work with the current location", async () => {
+            await expect(oauth.buildAuthorizeUrl()).to.reject(
+                Error,
+                /^No server url\b/i
+            );
+            await expect(oauth.buildAuthorizeUrl([])).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: "https://bad.iss"
+            }])).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: /^https:\/\/google/
+            }])).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
+            await expect(oauth.buildAuthorizeUrl([{
+                iss: 123
+            } as any])).to.reject(
+                Error,
+                /^None of the provided configurations matched the current server\b/i
+            );
         });
 
         it ("requires server url to be specified", () => {
@@ -376,7 +434,7 @@ describe("oauth", () => {
             ).to.reject(Error, /^No server url\b/i);
         });
 
-        it (`the server url can be specified as "query.iss"`, async () => {
+        it (`the server url can be specified as "query.iss"`, () => {
             const dummyLocation = {
                 protocol: "http://",
                 host    : "localhost",
@@ -384,12 +442,12 @@ describe("oauth", () => {
                 search  : "?iss=http://r3.smarthealthit.org&launch=b"
             } as Location;
 
-            await expect(
+            expect(
                 oauth.buildAuthorizeUrl({} as FhirClient.ClientOptions, dummyLocation)
             ).not.to.reject();
         });
 
-        it (`the server url can be specified as "query.fhirServiceUrl"`, async () => {
+        it (`the server url can be specified as "query.fhirServiceUrl"`, () => {
             const dummyLocation = {
                 protocol: "http://",
                 host    : "localhost",
@@ -397,12 +455,12 @@ describe("oauth", () => {
                 search  : "?fhirServiceUrl=http://r3.smarthealthit.org"
             } as Location;
 
-            await expect(
+            expect(
                 oauth.buildAuthorizeUrl({} as FhirClient.ClientOptions, dummyLocation)
             ).not.to.reject();
         });
 
-        it (`the server url can be specified as "options.serverUrl"`, async () => {
+        it (`the server url can be specified as "options.serverUrl"`, () => {
             const dummyLocation = {
                 protocol: "http://",
                 host    : "localhost",
@@ -410,12 +468,12 @@ describe("oauth", () => {
                 search  : "?"
             } as Location;
 
-            await expect(
+            expect(
                 oauth.buildAuthorizeUrl({ serverUrl: "http://r3.smarthealthit.org" } as FhirClient.ClientOptions, dummyLocation)
             ).not.to.reject();
         });
 
-        it (`requires "launch" query param if "iss" is specified`, async () => {
+        it (`requires "launch" query param if "iss" is specified`, () => {
             const dummyLocation = {
                 protocol: "http://",
                 host    : "localhost",
@@ -423,7 +481,7 @@ describe("oauth", () => {
                 search  : "?iss=http://r3.smarthealthit.org"
             } as Location;
 
-            await expect(
+            expect(
                 oauth.buildAuthorizeUrl({} as FhirClient.ClientOptions, dummyLocation)
             ).to.reject(Error, `Missing url parameter "launch"`);
         });
@@ -432,14 +490,13 @@ describe("oauth", () => {
             await oauth.buildAuthorizeUrl({
                 serverUrl: "http://r3.smarthealthit.org",
                 clientId : "my-client-id",
-                clientSecret: "mySecret",
-                // redirectUri: "wherever"
+                clientSecret: "mySecret"
             } as FhirClient.ClientOptions);
 
-            const data = sessionStorage.get();
-            const key  = Object.keys(data)[0];
+            const key = sessionStorage.getItem("smartId");
+            const data = sessionStorage.getItem(key);
 
-            expect(JSON.parse(data[key]).redirectUri).to.equal("http://localhost/a/b/");
+            await expect(JSON.parse(data).redirectUri).to.equal("http://localhost/a/b/");
         });
 
         it (`redirectUri is resolved as relative to the current domain`, async () => {
@@ -450,10 +507,10 @@ describe("oauth", () => {
                 redirectUri: "wherever"
             } as FhirClient.ClientOptions);
 
-            const data = sessionStorage.get();
-            const key  = Object.keys(data)[0];
+            const key = sessionStorage.getItem("smartId");
+            const data = sessionStorage.getItem(key);
 
-            expect(JSON.parse(data[key]).redirectUri).to.equal("http://localhost/a/b/wherever");
+            await expect(JSON.parse(data).redirectUri).to.equal("http://localhost/a/b/wherever");
         });
 
         it (`options.scope end up in the storage`, async () => {
@@ -630,7 +687,7 @@ describe("oauth", () => {
 
     });
 
-    // describe("getState", () => {
+    describe("init", () => {
     //     it ("throws if called with falsy ID", () => {
     //         // tslint:disable
     //         // expect(() => oauth.getState(         )).to.throw(Error, /^Cannot look up state by the given id/);
@@ -642,9 +699,38 @@ describe("oauth", () => {
     //         // tslint:enable
     //     });
 
-    //     it ("returns null if the ID is missing", () => {
-    //         expect(oauth.getState("missingId")).to.equal(null);
-    //     });
+        it ("attempts to complete auth if code and state are present", () => {
+            // const state = {
+            //     redirectUri: "my-redirectUri",
+            //     tokenUri   : "http://launch.smarthealthit.org/v/r3/auth/token",
+            //     clientId   : "my-clientId"
+            // };
+            // sessionStorage.setItem("my-state", JSON.stringify(state));
+            // sessionStorage.setItem("smartId", "my-state");
+
+            const dom = new JSDOM(``, {
+                url: `http://localhost/launch.html?state=my-fake-state&code=my-code`,
+            });
+
+            (global as ExtendedGlobal).document = dom.window.document;
+            (global as ExtendedGlobal).location = dom.window.location;
+            expect(oauth.init()).to.reject(
+                Error, /^State key mismatch/
+            );
+        });
+
+        it ("attempts to create a client if cached state is present", async () => {
+            sessionStorage.setItem("my-state", JSON.stringify({
+                serverUrl: "https://r3.smarthealthit.org"
+            }));
+            sessionStorage.setItem("smartId", "my-state");
+            const client = await oauth.init();
+            expect(client).to.be.instanceOf(Client);
+        });
+
+        it ("attempts to authorize otherwise", () => {
+            // expect(oauth.getState("missingId")).to.equal(null);
+        });
 
     //     it ("throws if the ID resolves to non-json value", () => {
     //         sessionStorage.setItem("badId", "bad value");
@@ -656,14 +742,14 @@ describe("oauth", () => {
     //         sessionStorage.setItem("goodId", JSON.stringify(json));
     //         expect(oauth.getState("goodId")).to.equal(json);
     //     });
-    // });
+    });
 
     describe("completeAuth", () => {
-        it ("rejects on error", async () => {
+        it ("rejects on error", () => {
             const state = {
-                redirectUri    : "my-redirectUri",
-                tokenUri       : "http://launch.smarthealthit.org/v/r3/auth/token",
-                clientId       : "my-clientId"
+                redirectUri: "my-redirectUri",
+                tokenUri   : "http://launch.smarthealthit.org/v/r3/auth/token",
+                clientId   : "my-clientId"
             };
             sessionStorage.setItem("my-state", JSON.stringify(state));
             sessionStorage.setItem("smartId", "my-state");
@@ -674,7 +760,27 @@ describe("oauth", () => {
 
             (global as ExtendedGlobal).document = dom.window.document;
             (global as ExtendedGlobal).location = dom.window.location;
-            await expect(oauth.completeAuth()).to.reject(); // no such code
+            expect(oauth.completeAuth()).to.reject(); // no such code
+        });
+
+        it ("validates the state param", () => {
+            const state = {
+                redirectUri: "my-redirectUri",
+                tokenUri   : "http://launch.smarthealthit.org/v/r3/auth/token",
+                clientId   : "my-clientId"
+            };
+            sessionStorage.setItem("my-state", JSON.stringify(state));
+            sessionStorage.setItem("smartId", "my-state");
+
+            const dom = new JSDOM(``, {
+                url: `http://localhost/launch.html?state=my-fake-state&code=my-code`,
+            });
+
+            (global as ExtendedGlobal).document = dom.window.document;
+            (global as ExtendedGlobal).location = dom.window.location;
+            expect(oauth.completeAuth()).to.reject(
+                Error, /^State key mismatch/
+            );
         });
 
         it ("works as expected", async () => {
@@ -710,14 +816,11 @@ describe("oauth", () => {
             })).headers.location;
 
             // Now pretend that we have followed the redirect at
-            const dom = new JSDOM(``, {
-                url: redirectURL
-            });
-
+            const dom = new JSDOM(``, { url: redirectURL });
             (global as ExtendedGlobal).document = dom.window.document;
             (global as ExtendedGlobal).location = dom.window.location;
 
-            await expect(oauth.completeAuth()).not.to.reject();
+            expect(oauth.completeAuth()).not.to.reject();
         });
     });
 

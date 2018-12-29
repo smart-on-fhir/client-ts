@@ -1,11 +1,11 @@
 {
   "name": "client-ts",
   "version": "1.0.0",
-  "description": "",
+  "description": "SMART client for JavaScript apps",
   "main": "index.js",
   "scripts": {
     "test": "lab test/*.test.ts",
-    "test:watch": "nodemon -e ts,js,json -x 'npm test'",
+    "test:watch": "nodemon -e ts,js,json -w test -w dist/*.js -x 'lab test/*.test.ts'",
     "dev": "webpack --watch --mode development"
   },
   "keywords": [],

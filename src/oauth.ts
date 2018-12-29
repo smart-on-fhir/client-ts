@@ -93,7 +93,6 @@ export function buildAuthorizeUrl(options: NS.AuthorizeOptions | NS.AuthorizeOpt
     let cfg;
     let serverUrl = String(iss || fhirServiceUrl || "");
     if (Array.isArray(options)) {
-        // TODO: find cfg
         cfg = options.find(o => {
             if (typeof o.iss == "string") {
                 return o.iss === iss || o.iss === fhirServiceUrl;
@@ -264,8 +263,11 @@ export function completeAuth(): Promise<Client> {
     // in which we store our state. But what if somebody passes `state` param
     // manually and trick us to store the state on different location?
     if (Storage.key() !== state) {
-        throw new Error(`State key mismatch. Expected "${state}" but found "${Storage.key()}".`);
+        return Promise.reject(new Error(
+            `State key mismatch. Expected "${state}" but found "${Storage.key()}".`
+        ));
     }
+
     const cached = Storage.get();
 
     // state and code are coming from the page url so they might be empty or
@@ -288,7 +290,7 @@ export function completeAuth(): Promise<Client> {
         .then(stored => new Client(stored as NS.ClientState));
 }
 
-export function init(options: NS.ClientOptions): Promise<Client>
+export function init(options?: NS.ClientOptions): Promise<Client>
 {
     // if `code` and `state` params are present we need to complete the auth flow
     if (urlParam("state") && urlParam("code")) {

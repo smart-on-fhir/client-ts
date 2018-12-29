@@ -76,12 +76,8 @@ export function urlToAbsolute(url, doc: Document = document) {
 }
 
 export function resolve(path, serverUrl = "") {
-    if (!serverUrl) {
-        return urlToAbsolute(path);
-    }
-
     if (path.match(/^(http|urn)/)) return path;
-
+    if (!serverUrl) return urlToAbsolute(path);
     return [
         serverUrl.replace(/\/$\s*/, ""),
         path.replace(/^\s*\//, "")
@@ -109,12 +105,11 @@ export async function checkResponse(resp: Response): Promise<Response> {
     return resp;
 }
 
-export async function humanizeError(resp: Response): Promise<Error> {
-    let json;
+export async function humanizeError(resp: Response): Promise<never> {
     let msg = resp.status + " " + resp.statusText;
 
     try {
-        json = await resp.json();
+        const json = await resp.json();
         if (json.error) {
             msg += "\n" + json.error;
             if (json.error_description) {
@@ -134,6 +129,8 @@ export async function humanizeError(resp: Response): Promise<Error> {
             // ignore
         }
     }
+
+    // msg += "\nURL: " + resp.url;
 
     throw new Error(msg);
 }
