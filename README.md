@@ -135,7 +135,7 @@ SMART.authorize([
 Completes the auth flow and resolves the returned promise with new fhir Client instance.
 
 ## `SMART.init(options)`
-This is useful when you want to handle bot the launch and the rest of the app logic on the same page. It will do the following:
+This is useful when you want to handle both the launch and the rest of the app logic on the same page. It will do the following:
 
 - If loaded for the first time, it will authorize you using `SMART.authorize(options)`. This means that you will be redirected and the current page will unload. However, you should eventually end up on the same page where `SMART.init(options)` will be called again, but it will then behave differently.
 - Otherwise, if uou are being called by the EHR (code and state URL params are present), it will attempt to complete the authentication flow using `SMART.ready()` and give you a fhir client instance.
