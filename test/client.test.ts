@@ -335,7 +335,100 @@ describe("Client", () => {
         expect(client.user.read).to.be.a.function();
     });
 
-    it ("fhir.js api", null);
+    it ("client.getState works with no (or falsy) arguments", () => {
+        const state  = { serverUrl: "whatever" };
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.getState()).to.equal(state);
+        expect(client.getState("")).to.equal(state);
+        expect(client.getState(null)).to.equal(state);
+        expect(client.getState(false)).to.equal(state);
+    });
 
-    it ("fhir.js patient.api", null);
+    it ("client.getState works with paths", () => {
+        const state  = { a: { b: "x" } };
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.getState("a")).to.equal({ b: "x" });
+        expect(client.getState("a.b")).to.equal("x");
+    });
+
+    it ("fhir.js api without auth", () => {
+        const state = { serverUrl: "https://r3.smarthealthit.org" };
+        window.fhir = (options) => options;
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.api).to.equal({
+            baseUrl: state.serverUrl,
+            auth: {
+                type: "none"
+            }
+        });
+    });
+
+    it ("fhir.js api without auth", () => {
+        const state = {
+            serverUrl: "https://r3.smarthealthit.org"
+            tokenResponse: {
+                access_token: "xxxxxxxxxx"
+            }
+        };
+        window.fhir = (options) => options;
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.api).to.equal({
+            baseUrl: state.serverUrl,
+            auth: {
+                type: "bearer",
+                bearer: state.tokenResponse.access_token
+            }
+        });
+    });
+
+    it ("fhir.js patient.api without auth", () => {
+        const state = {
+            serverUrl: "https://r3.smarthealthit.org",
+            tokenResponse: {
+                patient: "patient-id"
+            }
+        };
+        window.fhir = (options) => options;
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.api).to.equal({
+            baseUrl: state.serverUrl,
+            auth: {
+                type: "none"
+            }
+        });
+        expect(client.patient.api).to.equal({
+            baseUrl: state.serverUrl,
+            patient: state.tokenResponse.patient,
+            auth: {
+                type: "none"
+            }
+        });
+    });
+
+    it ("fhir.js patient.api with auth", () => {
+        const state = {
+            serverUrl: "https://r3.smarthealthit.org",
+            tokenResponse: {
+                access_token: "xxxxxxxxxx",
+                patient: "patient-id"
+            }
+        };
+        window.fhir = (options) => options;
+        const client = new Client(state as FhirClient.ClientState);
+        expect(client.api).to.equal({
+            baseUrl: state.serverUrl,
+            auth: {
+                type: "bearer",
+                bearer: state.tokenResponse.access_token
+            }
+        });
+        expect(client.patient.api).to.equal({
+            baseUrl: state.serverUrl,
+            patient: state.tokenResponse.patient,
+            auth: {
+                type: "bearer",
+                bearer: state.tokenResponse.access_token
+            }
+        });
+    });
 });

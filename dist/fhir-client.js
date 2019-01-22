@@ -316,18 +316,17 @@ function __importDefault(mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 var Storage_1 = __webpack_require__(/*! ./Storage */ "./src/Storage.ts");
-// import Adapter              from "./adapter";
-// import fhir                from "fhir.js";
-// import fhir                from "fhir.js/src/adapters/native";
-// import makeFhir             from "fhir.js/src/fhir.js";
 var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
 /**
  * A SMART Client instance will simplify some tasks for you. It will authorize
  * requests automatically, use refresh tokens, handle errors and so on.
  */
 var Client = /** @class */ (function () {
+    /**
+     * Creates ne Client instance.
+     * @param state Required state to initialize with.
+     */
     function Client(state) {
-        var _this = this;
         /**
          * The currently selected patient (if any)
          */
@@ -347,43 +346,21 @@ var Client = /** @class */ (function () {
         }
         this.state = state;
         // Context (patient, user, encounter)
-        var patientId = lib_1.getPath(this.state, "tokenResponse.patient");
-        var encounterId = lib_1.getPath(this.state, "tokenResponse.encounter");
-        var idToken = lib_1.getPath(this.state, "tokenResponse.id_token");
+        var patientId = this.getState("tokenResponse.patient");
+        var encounterId = this.getState("tokenResponse.encounter");
+        var idToken = this.getState("tokenResponse.id_token");
         if (patientId) {
-            this.patient = {
-                id: patientId,
-                read: function () { return _this.request("Patient/" + patientId).then(function (r) { return r.json(); }); }
-            };
+            this.setPatientId(patientId);
         }
         if (encounterId) {
-            this.encounter = {
-                id: encounterId,
-                read: function () { return _this.request("Encounter/" + encounterId).then(function (r) { return r.json(); }); }
-            };
+            this.setEncounter(encounterId);
         }
         if (idToken) {
-            try {
-                var idTokenValue = JSON.parse(atob(idToken.split(".")[1]));
-                var fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
-                var tokens = fhirUser.split("/");
-                if (tokens.length > 1) {
-                    var id_1 = tokens.pop();
-                    var type_1 = tokens.pop();
-                    this.user = {
-                        type: type_1,
-                        id: id_1,
-                        read: function () { return _this.request(type_1 + "/" + id_1).then(function (r) { return r.json(); }); }
-                    };
-                }
-            }
-            catch (error) {
-                console.warn("Error parsing id_token:", error);
-            }
+            this.parseIdToken(idToken);
         }
         // Set up Fhir.js API if "fhir" is available in the global scope
         if (typeof window.fhir == "function") {
-            var accessToken = lib_1.getPath(this.state, "tokenResponse.access_token");
+            var accessToken = this.getState("tokenResponse.access_token");
             var auth = accessToken ?
                 { type: "bearer", bearer: accessToken } :
                 { type: "none" };
@@ -401,6 +378,73 @@ var Client = /** @class */ (function () {
         }
     }
     /**
+     * Parses the given id token, extracts the user information out of it and sets the current user.
+     * NOTE: To reduce the size of the script we do not use any jwt library to parse the token and
+     * we do not validate signatures!
+     * @param idToken The ID token to parse. This must be a jwt token.
+     */
+    Client.prototype.parseIdToken = function (idToken) {
+        try {
+            var idTokenValue = JSON.parse(atob(idToken.split(".")[1]));
+            var fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+            var tokens = fhirUser.split("/");
+            if (tokens.length > 1) {
+                var id = tokens.pop();
+                var type = tokens.pop();
+                this.setUser(type, id);
+            }
+        }
+        catch (error) {
+            console.warn("Error parsing id_token:", error);
+        }
+    };
+    /**
+     * Sets the current patient
+     * @param id The ID of the patient
+     */
+    Client.prototype.setPatientId = function (patientId) {
+        var _this = this;
+        this.patient = {
+            id: String(patientId),
+            read: function () { return _this.request("Patient/" + patientId).then(function (r) { return r.json(); }); }
+        };
+    };
+    /**
+     * Sets the current encounter
+     * @param id The ID of the encounter
+     */
+    Client.prototype.setEncounter = function (encounterId) {
+        var _this = this;
+        this.encounter = {
+            id: String(encounterId),
+            read: function () { return _this.request("Encounter/" + encounterId).then(function (r) { return r.json(); }); }
+        };
+    };
+    /**
+     * Sets the current user
+     * @param type The resource type of the user (Eg. "Patient", "Practitioner", "RelatedPerson"...)
+     * @param id The ID of the user
+     */
+    Client.prototype.setUser = function (type, id) {
+        var _this = this;
+        this.user = {
+            type: type,
+            id: String(id),
+            read: function () { return _this.request(type + "/" + id).then(function (r) { return r.json(); }); }
+        };
+    };
+    /**
+     * Gets the state, optionally diving into specific node by the given path
+     * @param {string} The path to look up. Defaults to "".
+     */
+    Client.prototype.getState = function (path) {
+        if (path === void 0) { path = ""; }
+        if (!path) {
+            return this.state;
+        }
+        return lib_1.getPath(this.state, path);
+    };
+    /**
      * Allows you to do the following:
      * 1. Use relative URLs (treat them as relative to the "serverUrl" option)
      * 2. Automatically authorize requests with your accessToken (if any)
@@ -415,13 +459,13 @@ var Client = /** @class */ (function () {
         if (options === void 0) { options = {}; }
         url = lib_1.resolve(url, this.state.serverUrl);
         // If we are talking to protected fhir server we should have an access token
-        var accessToken = lib_1.getPath(this.state, "tokenResponse.access_token");
+        var accessToken = this.getState("tokenResponse.access_token");
         if (accessToken) {
             options.headers = tslib_1.__assign({}, options.headers, { Authorization: "Bearer " + accessToken });
         }
         return fetch(url, options)
             .then(function (resp) {
-            if (resp.status == 401 && lib_1.getPath(_this.state, "tokenResponse.refresh_token")) {
+            if (resp.status == 401 && _this.getState("tokenResponse.refresh_token")) {
                 return _this.refresh().then(function () { return _this.request(url, options); });
             }
             return resp;
@@ -451,7 +495,7 @@ var Client = /** @class */ (function () {
                         body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(refreshToken)
                     })
                         .then(lib_1.checkResponse)
-                        .then(function (resp) { return resp.json(); })
+                        .then(lib_1.responseToJSON)
                         .then(function (json) {
                         _this.state.tokenResponse = tslib_1.__assign({}, _this.state.tokenResponse, json);
                         // Save this change into the sessionStorage
@@ -670,6 +714,14 @@ function urlToAbsolute(url, doc) {
     return a.href;
 }
 exports.urlToAbsolute = urlToAbsolute;
+/**
+ * This is similar to the `urlToAbsolute` function but you can pass the domain
+ * serverUrl. It is used to convert relative URIs to absolute ones.
+ * @param path The path to convert to absolute. If it begins with "http" or
+ * "urn", it will be returned as is.
+ * @param serverUrl The base URL of the resulting url. If empty, the current
+ * document URL will be used. Defaults to "".
+ */
 function resolve(path, serverUrl) {
     if (serverUrl === void 0) { serverUrl = ""; }
     if (path.match(/^(http|urn)/))
@@ -682,6 +734,13 @@ function resolve(path, serverUrl) {
     ].join("/");
 }
 exports.resolve = resolve;
+/**
+ * Generates random strings. By default this returns random 8 characters long
+ * alphanumeric strings.
+ * @param strLength The length of the output string. Defaults to 8.
+ * @param charSet A string containing all the possible characters. Defaults to
+ * all the upper and lower-case letters plus digits.
+ */
 function randomString(strLength, charSet) {
     if (strLength === void 0) { strLength = 8; }
     if (charSet === void 0) { charSet = null; }
@@ -696,6 +755,9 @@ function randomString(strLength, charSet) {
     return result.join("");
 }
 exports.randomString = randomString;
+/**
+ * Used in fetch Promise chains to reject if the "ok" property is not true
+ */
 function checkResponse(resp) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         return tslib_1.__generator(this, function (_a) {
@@ -710,6 +772,13 @@ function checkResponse(resp) {
     });
 }
 exports.checkResponse = checkResponse;
+/**
+ * Used in fetch Promise chains to return the JSON bersion of the response
+ */
+function responseToJSON(resp) {
+    return resp.json();
+}
+exports.responseToJSON = responseToJSON;
 function humanizeError(resp) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var msg, json, _1, text, _2;

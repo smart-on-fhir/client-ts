@@ -75,6 +75,14 @@ export function urlToAbsolute(url, doc: Document = document) {
     return a.href;
 }
 
+/**
+ * This is similar to the `urlToAbsolute` function but you can pass the domain
+ * serverUrl. It is used to convert relative URIs to absolute ones.
+ * @param path The path to convert to absolute. If it begins with "http" or
+ * "urn", it will be returned as is.
+ * @param serverUrl The base URL of the resulting url. If empty, the current
+ * document URL will be used. Defaults to "".
+ */
 export function resolve(path, serverUrl = "") {
     if (path.match(/^(http|urn)/)) return path;
     if (!serverUrl) return urlToAbsolute(path);
@@ -84,6 +92,13 @@ export function resolve(path, serverUrl = "") {
     ].join("/");
 }
 
+/**
+ * Generates random strings. By default this returns random 8 characters long
+ * alphanumeric strings.
+ * @param strLength The length of the output string. Defaults to 8.
+ * @param charSet A string containing all the possible characters. Defaults to
+ * all the upper and lower-case letters plus digits.
+ */
 export function randomString(strLength = 8, charSet = null) {
     const result = [];
 
@@ -98,11 +113,21 @@ export function randomString(strLength = 8, charSet = null) {
     return result.join("");
 }
 
+/**
+ * Used in fetch Promise chains to reject if the "ok" property is not true
+ */
 export async function checkResponse(resp: Response): Promise<Response> {
     if (!resp.ok) {
         throw (await humanizeError(resp));
     }
     return resp;
+}
+
+/**
+ * Used in fetch Promise chains to return the JSON bersion of the response
+ */
+export function responseToJSON(resp: Response) {
+    return resp.json();
 }
 
 export async function humanizeError(resp: Response): Promise<never> {

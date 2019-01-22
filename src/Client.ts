@@ -1,10 +1,6 @@
 import { FhirClient as NS, fhir } from "..";
 import Storage from "./Storage";
-// import Adapter              from "./adapter";
-// import fhir                from "fhir.js";
-// import fhir                from "fhir.js/src/adapters/native";
-// import makeFhir             from "fhir.js/src/fhir.js";
-import { getPath, checkResponse, debug, resolve } from "./lib";
+import { getPath, checkResponse, responseToJSON, debug, resolve } from "./lib";
 
 declare global {
     interface Window {
@@ -71,9 +67,17 @@ export default class Client
      */
     public encounter: Encounter | null = null;
 
+    /**
+     * Will refer to the global fhir.js api if fhir.js is available. It will be
+     * undefined.
+     */
     public api?: FhirJsAPI;
 
-    constructor(state: NS.ClientState)
+    /**
+     * Creates ne Client instance.
+     * @param state Required state to initialize with.
+     */
+    public constructor(state: NS.ClientState)
     {
         // This might happen if the state have been lost (for example the
         // sessionStorage has been cleared, size limit exceeded etc.).
@@ -83,47 +87,25 @@ export default class Client
         this.state = state;
 
         // Context (patient, user, encounter)
-        const patientId   = getPath(this.state, "tokenResponse.patient");
-        const encounterId = getPath(this.state, "tokenResponse.encounter");
-        const idToken     = getPath(this.state, "tokenResponse.id_token");
+        const patientId   = this.getState("tokenResponse.patient");
+        const encounterId = this.getState("tokenResponse.encounter");
+        const idToken     = this.getState("tokenResponse.id_token");
 
         if (patientId) {
-            this.patient = {
-                id: patientId,
-                read: () => this.request(`Patient/${patientId}`).then(r => r.json())
-            };
+            this.setPatientId(patientId);
         }
 
         if (encounterId) {
-            this.encounter = {
-                id: encounterId,
-                read: () => this.request(`Encounter/${encounterId}`).then(r => r.json())
-            };
+            this.setEncounter(encounterId);
         }
 
         if (idToken) {
-            try {
-                const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
-                const fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
-                const tokens   = fhirUser.split("/");
-                if (tokens.length > 1) {
-                    const id   = tokens.pop();
-                    const type = tokens.pop();
-                    this.user = {
-                        type,
-                        id,
-                        read: () => this.request(`${type}/${id}`).then(r => r.json())
-                    };
-                }
-            } catch (error) {
-                console.warn("Error parsing id_token:", error);
-            }
+            this.parseIdToken(idToken);
         }
-
 
         // Set up Fhir.js API if "fhir" is available in the global scope
         if (typeof window.fhir == "function") {
-            const accessToken = getPath(this.state, "tokenResponse.access_token");
+            const accessToken = this.getState("tokenResponse.access_token");
             const auth = accessToken ?
                 { type: "bearer", bearer: accessToken } :
                 { type: "none" };
@@ -144,6 +126,78 @@ export default class Client
     }
 
     /**
+     * Parses the given id token, extracts the user information out of it and sets the current user.
+     * NOTE: To reduce the size of the script we do not use any jwt library to parse the token and
+     * we do not validate signatures!
+     * @param idToken The ID token to parse. This must be a jwt token.
+     */
+    private parseIdToken(idToken)
+    {
+        try {
+            const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
+            const fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+            const tokens   = fhirUser.split("/");
+            if (tokens.length > 1) {
+                const id   = tokens.pop();
+                const type = tokens.pop();
+                this.setUser(type, id);
+            }
+        } catch (error) {
+            console.warn("Error parsing id_token:", error);
+        }
+    }
+
+    /**
+     * Sets the current patient
+     * @param id The ID of the patient
+     */
+    public setPatientId(patientId: string | number)
+    {
+        this.patient = {
+            id  : String(patientId),
+            read: () => this.request(`Patient/${patientId}`).then(r => r.json())
+        };
+    }
+
+    /**
+     * Sets the current encounter
+     * @param id The ID of the encounter
+     */
+    public setEncounter(encounterId: string | number)
+    {
+        this.encounter = {
+            id  : String(encounterId),
+            read: () => this.request(`Encounter/${encounterId}`).then(r => r.json())
+        };
+    }
+
+    /**
+     * Sets the current user
+     * @param type The resource type of the user (Eg. "Patient", "Practitioner", "RelatedPerson"...)
+     * @param id The ID of the user
+     */
+    public setUser(type: string, id: string | number)
+    {
+        this.user = {
+            type,
+            id  : String(id),
+            read: () => this.request(`${type}/${id}`).then(r => r.json())
+        };
+    }
+
+    /**
+     * Gets the state, optionally diving into specific node by the given path
+     * @param {string} The path to look up. Defaults to "".
+     */
+    public getState(path: string = "")
+    {
+        if (!path) {
+            return this.state;
+        }
+        return getPath(this.state, path);
+    }
+
+    /**
      * Allows you to do the following:
      * 1. Use relative URLs (treat them as relative to the "serverUrl" option)
      * 2. Automatically authorize requests with your accessToken (if any)
@@ -158,7 +212,7 @@ export default class Client
         url = resolve(url, this.state.serverUrl);
 
         // If we are talking to protected fhir server we should have an access token
-        const accessToken = getPath(this.state, "tokenResponse.access_token");
+        const accessToken = this.getState("tokenResponse.access_token");
         if (accessToken) {
             options.headers = {
                 ...options.headers,
@@ -168,7 +222,7 @@ export default class Client
 
         return fetch(url, options)
             .then(resp => {
-                if (resp.status == 401 && getPath(this.state, "tokenResponse.refresh_token")) {
+                if (resp.status == 401 && this.getState("tokenResponse.refresh_token")) {
                     return this.refresh().then(() => this.request(url, options));
                 }
                 return resp;
@@ -198,7 +252,7 @@ export default class Client
             body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`
         })
         .then(checkResponse)
-        .then(resp => resp.json())
+        .then(responseToJSON)
         .then(json => {
             this.state.tokenResponse = {
                 ...this.state.tokenResponse,
