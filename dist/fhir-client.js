@@ -857,13 +857,11 @@ var Client_1 = __webpack_require__(/*! ./Client */ "./src/Client.ts");
 var Storage_1 = __webpack_require__(/*! ./Storage */ "./src/Storage.ts");
 var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
 function fetchConformanceStatement(baseUrl) {
-    if (!baseUrl) {
-        baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
-    }
+    if (baseUrl === void 0) { baseUrl = "/"; }
     var url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
     return fetch(url)
         .then(lib_1.checkResponse)
-        .then(function (resp) { return resp.json(); })
+        .then(lib_1.responseToJSON)
         .catch(function (ex) {
         lib_1.debug(ex);
         throw new Error("Failed to fetch the conformance statement from \"" + url + "\". " + ex);
@@ -1081,7 +1079,7 @@ function completeAuth() {
     // authorization request has been denied.
     return fetch(cached.tokenUri, requestOptions)
         .then(lib_1.checkResponse)
-        .then(function (resp) { return resp.json(); })
+        .then(lib_1.responseToJSON)
         .then(function (data) {
         lib_1.debug("Received tokenResponse. Saving it to the state...");
         cached.tokenResponse = data;

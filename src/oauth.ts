@@ -7,19 +7,17 @@ import {
     urlToAbsolute,
     randomString,
     checkResponse,
+    responseToJSON,
     debug,
     humanizeError
 } from "./lib";
 
 
-export function fetchConformanceStatement(baseUrl?: string): Promise<fhir.CapabilityStatement> {
-    if (!baseUrl) {
-        baseUrl = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
-    }
+export function fetchConformanceStatement(baseUrl: string = "/"): Promise<fhir.CapabilityStatement> {
     const url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
     return fetch(url)
     .then(checkResponse)
-    .then(resp => resp.json())
+    .then(responseToJSON)
     .catch(ex => {
         debug(ex);
         throw new Error(`Failed to fetch the conformance statement from "${url}". ${ex}`);
@@ -279,7 +277,7 @@ export function completeAuth(): Promise<Client> {
     // authorization request has been denied.
     return fetch(cached.tokenUri, requestOptions)
         .then(checkResponse)
-        .then(resp => resp.json())
+        .then(responseToJSON)
         .then(data => {
             debug(`Received tokenResponse. Saving it to the state...`);
             cached.tokenResponse = data;
