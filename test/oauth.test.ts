@@ -90,6 +90,10 @@ beforeEach(() => {
     (global as ExtendedGlobal).btoa = str => {
         return Buffer.from(str).toString("base64");
     };
+
+    return new Promise((resolve) => {
+        setTimeout(resolve, 10);
+    });
 });
 
 afterEach(() => {

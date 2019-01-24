@@ -378,15 +378,16 @@ var Client = /** @class */ (function () {
         }
     }
     /**
-     * Parses the given id token, extracts the user information out of it and sets the current user.
-     * NOTE: To reduce the size of the script we do not use any jwt library to parse the token and
-     * we do not validate signatures!
+     * Parses the given id token, extracts the user information out of it and
+     * sets the current user.
+     * NOTE: To reduce the size of the script we do not use any jwt library to
+     * parse the token and we do not validate signatures!
      * @param idToken The ID token to parse. This must be a jwt token.
      */
     Client.prototype.parseIdToken = function (idToken) {
         try {
-            var idTokenValue = JSON.parse(atob(idToken.split(".")[1]));
-            var fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+            var token = JSON.parse(atob(idToken.split(".")[1]));
+            var fhirUser = token.fhirUser || token.profile || "";
             var tokens = fhirUser.split("/");
             if (tokens.length > 1) {
                 var id = tokens.pop();
@@ -402,27 +403,28 @@ var Client = /** @class */ (function () {
      * Sets the current patient
      * @param id The ID of the patient
      */
-    Client.prototype.setPatientId = function (patientId) {
+    Client.prototype.setPatientId = function (id) {
         var _this = this;
         this.patient = {
-            id: String(patientId),
-            read: function () { return _this.request("Patient/" + patientId).then(function (r) { return r.json(); }); }
+            id: String(id),
+            read: function () { return _this.request("Patient/" + id).then(lib_1.responseToJSON); }
         };
     };
     /**
      * Sets the current encounter
      * @param id The ID of the encounter
      */
-    Client.prototype.setEncounter = function (encounterId) {
+    Client.prototype.setEncounter = function (id) {
         var _this = this;
         this.encounter = {
-            id: String(encounterId),
-            read: function () { return _this.request("Encounter/" + encounterId).then(function (r) { return r.json(); }); }
+            id: String(id),
+            read: function () { return _this.request("Encounter/" + id).then(lib_1.responseToJSON); }
         };
     };
     /**
      * Sets the current user
-     * @param type The resource type of the user (Eg. "Patient", "Practitioner", "RelatedPerson"...)
+     * @param type The resource type of the user (Eg. "Patient", "Practitioner",
+     * "RelatedPerson"...)
      * @param id The ID of the user
      */
     Client.prototype.setUser = function (type, id) {
@@ -430,7 +432,7 @@ var Client = /** @class */ (function () {
         this.user = {
             type: type,
             id: String(id),
-            read: function () { return _this.request(type + "/" + id).then(function (r) { return r.json(); }); }
+            read: function () { return _this.request(type + "/" + id).then(lib_1.responseToJSON); }
         };
     };
     /**
@@ -1103,7 +1105,7 @@ function init(options) {
         return Promise.resolve(new Client_1.default(cached));
     }
     // Otherwise try to launch
-    authorize(options).then(function () {
+    return authorize(options).then(function () {
         // `init` promises a Client but that cannot happen in this case. The
         // browser will be redirected (unload the page and be redirected back
         // to it later and the same init function will be called again). On
@@ -1117,7 +1119,7 @@ function init(options) {
 exports.init = init;
 // export async function ready(): Promise<Client> {
 //     // First check for existing client state
-//     const cached = getState("smart");
+//     const cached = Storage.get();
 //     // If state is found, it means a client instance have already been created
 //     // in this session and we should try to revive it.
 //     if (cached) {

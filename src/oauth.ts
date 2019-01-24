@@ -288,7 +288,7 @@ export function completeAuth(): Promise<Client> {
         .then(stored => new Client(stored as NS.ClientState));
 }
 
-export function init(options?: NS.ClientOptions): Promise<Client>
+export function init(options?: NS.ClientOptions): Promise<Client | {}>
 {
     // if `code` and `state` params are present we need to complete the auth flow
     if (urlParam("state") && urlParam("code")) {
@@ -304,7 +304,7 @@ export function init(options?: NS.ClientOptions): Promise<Client>
     }
 
     // Otherwise try to launch
-    authorize(options).then(() => {
+    return authorize(options).then(() => {
         // `init` promises a Client but that cannot happen in this case. The
         // browser will be redirected (unload the page and be redirected back
         // to it later and the same init function will be called again). On
@@ -319,7 +319,7 @@ export function init(options?: NS.ClientOptions): Promise<Client>
 // export async function ready(): Promise<Client> {
 
 //     // First check for existing client state
-//     const cached = getState("smart");
+//     const cached = Storage.get();
 
 //     // If state is found, it means a client instance have already been created
 //     // in this session and we should try to revive it.

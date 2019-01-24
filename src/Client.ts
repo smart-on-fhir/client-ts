@@ -126,16 +126,17 @@ export default class Client
     }
 
     /**
-     * Parses the given id token, extracts the user information out of it and sets the current user.
-     * NOTE: To reduce the size of the script we do not use any jwt library to parse the token and
-     * we do not validate signatures!
+     * Parses the given id token, extracts the user information out of it and
+     * sets the current user.
+     * NOTE: To reduce the size of the script we do not use any jwt library to
+     * parse the token and we do not validate signatures!
      * @param idToken The ID token to parse. This must be a jwt token.
      */
     private parseIdToken(idToken)
     {
         try {
-            const idTokenValue: IDToken = JSON.parse(atob(idToken.split(".")[1]));
-            const fhirUser = idTokenValue.fhirUser || idTokenValue.profile || "";
+            const token: IDToken = JSON.parse(atob(idToken.split(".")[1]));
+            const fhirUser = token.fhirUser || token.profile || "";
             const tokens   = fhirUser.split("/");
             if (tokens.length > 1) {
                 const id   = tokens.pop();
@@ -151,11 +152,11 @@ export default class Client
      * Sets the current patient
      * @param id The ID of the patient
      */
-    public setPatientId(patientId: string | number)
+    public setPatientId(id: string | number)
     {
         this.patient = {
-            id  : String(patientId),
-            read: () => this.request(`Patient/${patientId}`).then(r => r.json())
+            id  : String(id),
+            read: () => this.request(`Patient/${id}`).then(responseToJSON)
         };
     }
 
@@ -163,17 +164,18 @@ export default class Client
      * Sets the current encounter
      * @param id The ID of the encounter
      */
-    public setEncounter(encounterId: string | number)
+    public setEncounter(id: string | number)
     {
         this.encounter = {
-            id  : String(encounterId),
-            read: () => this.request(`Encounter/${encounterId}`).then(r => r.json())
+            id  : String(id),
+            read: () => this.request(`Encounter/${id}`).then(responseToJSON)
         };
     }
 
     /**
      * Sets the current user
-     * @param type The resource type of the user (Eg. "Patient", "Practitioner", "RelatedPerson"...)
+     * @param type The resource type of the user (Eg. "Patient", "Practitioner",
+     * "RelatedPerson"...)
      * @param id The ID of the user
      */
     public setUser(type: string, id: string | number)
@@ -181,7 +183,7 @@ export default class Client
         this.user = {
             type,
             id  : String(id),
-            read: () => this.request(`${type}/${id}`).then(r => r.json())
+            read: () => this.request(`${type}/${id}`).then(responseToJSON)
         };
     }
 

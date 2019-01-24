@@ -12,7 +12,7 @@
         sessionStorage.debug = 1;
         const client = FHIR.oAuth2.authorize({
             clientId: "whatever",
-            scope: "patient/*.* user/*.* launch openid profile offline_access"
+            scope: "patient/*.* user/*.* launch/patient openid profile offline_access"
             // redirectUri: "/"
         });
 
