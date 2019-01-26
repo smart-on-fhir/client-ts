@@ -130,6 +130,10 @@ export function responseToJSON(resp: Response) {
     return resp.json();
 }
 
+export function fetchJSON(url: RequestInfo, options?: RequestInit) {
+    return fetch(url, options).then(checkResponse).then(responseToJSON);
+}
+
 export async function humanizeError(resp: Response): Promise<never> {
     let msg = resp.status + " " + resp.statusText;
 

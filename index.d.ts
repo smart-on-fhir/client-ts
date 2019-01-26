@@ -30,7 +30,7 @@ export namespace FhirClient {
 
         /**
          * The access scopes that you need.
-         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
          */
         scope?: string;
 
@@ -66,7 +66,7 @@ export namespace FhirClient {
 
         /**
          * The access scopes that you need.
-         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
          */
         scope?: string;
 
@@ -126,7 +126,7 @@ export namespace FhirClient {
 
         /**
          * The access scopes that you need.
-         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
          */
         scope?: string;
 
@@ -160,7 +160,7 @@ export namespace FhirClient {
 
         /**
          * The access scopes that you requested in your options (or an empty string).
-         * @see http://docs.smarthealthit.org/authorization/scopes-and-launch-context/
+         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
          */
         scope: string;
 
@@ -341,7 +341,6 @@ export namespace FhirClient {
     type readyFnArgs  = readyArgsFn1 | readyArgsFn2 | readyArgsFn3 | readyArgsFn4;
 
 }
-
 
 /**
  * Describes various FHIR entities, but ONLY to the extend that we are using them
@@ -735,5 +734,133 @@ export namespace fhir {
 
         link: BundleLink[];
         entry?: BundleEntry[];
+    }
+}
+
+export namespace SMART {
+
+    // Capabilities ------------------------------------------------------------
+
+    type SMARTAuthenticationMethod = "client_secret_post" | "client_secret_basic";
+
+    type launchMode = "launch-ehr" | "launch-standalone";
+
+    type clientType = "client-public" | "client-confidential-symmetric";
+
+    type singleSignOn = "sso-openid-connect";
+
+    type launchContext = "context-banner" | "context-style";
+
+    type launchContextEHR = "context-ehr-patient" | "context-ehr-encounter";
+
+    type launchContextStandalone = "context-standalone-patient" | "context-standalone-encounter";
+
+    type permissions = "permission-offline" | "permission-patient" | "permission-user";
+
+    // OAuth2 Endpoints --------------------------------------------------------
+
+    interface OAuth2Endpoints {
+
+        /**
+         * If available, URL to the OAuth2 dynamic registration endpoint for this
+         * FHIR server.
+         */
+        register?: string;
+
+        /**
+         * URL to the OAuth2 authorization endpoint.
+         */
+        authorize: string;
+
+        /**
+         * URL to the OAuth2 token endpoint.
+         */
+        token: string;
+
+        /**
+         * If available, URL where an end-user can view which applications
+         * currently have access to data and can make adjustments to these access
+         * rights.
+         */
+        manage?: string;
+
+        /**
+         * URL to a server’s introspection endpoint that can be used to validate
+         * a token.
+         */
+        introspect?: string;
+
+        /**
+         * URL to a server’s endpoint that can be used to revoke a token.
+         */
+        revoke?: string;
+    }
+
+
+    interface WellKnownSmartConfiguration {
+        /**
+         * URL to the OAuth2 authorization endpoint.
+         */
+        authorization_endpoint: string;
+        
+        /**
+         * URL to the OAuth2 token endpoint.
+         */
+        token_endpoint: string;
+        
+        /**
+         * If available, URL to the OAuth2 dynamic registration endpoint for the
+         * FHIR server.
+         */
+        registration_endpoint?: string;
+        
+        /**
+         * RECOMMENDED! URL where an end-user can view which applications currently
+         * have access to data and can make adjustments to these access rights.
+         */
+        management_endpoint?: string;
+
+        /**
+         * RECOMMENDED! URL to a server’s introspection endpoint that can be used
+         * to validate a token.
+         */
+        introspection_endpoint?: string;
+
+        /**
+         * RECOMMENDED! URL to a server’s revoke endpoint that can be used to
+         * revoke a token.
+         */
+        revocation_endpoint?: string;
+        
+        /**
+         * Array of client authentication methods supported by the token endpoint.
+         * The options are “client_secret_post” and “client_secret_basic”.
+         */
+        token_endpoint_auth_methods?: SMARTAuthenticationMethod[];
+        
+        /**
+         * Array of scopes a client may request.
+         */
+        scopes_supported?: string[];
+        
+        /**
+         * Array of OAuth2 response_type values that are supported
+         */
+        response_types_supported?: string[];
+
+        /**
+         * Array of strings representing SMART capabilities (e.g., single-sign-on
+         * or launch-standalone) that the server supports.
+         */
+        capabilities: (
+            SMARTAuthenticationMethod |
+            launchMode |
+            clientType |
+            singleSignOn |
+            launchContext |
+            launchContextEHR |
+            launchContextStandalone |
+            permissions
+        )[]; 
     }
 }

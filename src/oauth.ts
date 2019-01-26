@@ -1,59 +1,73 @@
-import { FhirClient as NS, FhirClient, fhir } from "..";
-import Client                                 from "./Client";
-import Storage                                from "./Storage";
+import { FhirClient as NS, fhir, SMART } from "..";
+import Client                            from "./Client";
+import Storage                           from "./Storage";
 import {
     urlParam,
     getPath,
     urlToAbsolute,
     randomString,
-    checkResponse,
-    responseToJSON,
-    debug,
-    humanizeError
+    fetchJSON,
+    debug
 } from "./lib";
 
 
 export function fetchConformanceStatement(baseUrl: string = "/"): Promise<fhir.CapabilityStatement> {
     const url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
-    return fetch(url)
-    .then(checkResponse)
-    .then(responseToJSON)
-    .catch(ex => {
+    return fetchJSON(url).catch((ex: Error) => {
         debug(ex);
         throw new Error(`Failed to fetch the conformance statement from "${url}". ${ex}`);
     });
 }
 
+export function fetchWellKnownJson(baseUrl: string = "/"): Promise<SMART.WellKnownSmartConfiguration> {
+    const url = String(baseUrl).replace(/\/*$/, "/") + ".well-known/smart-configuration";
+    return fetchJSON(url).catch((ex: Error) => {
+        debug(ex);
+        throw new Error(`Failed to fetch the well-known json "${url}". ${ex.message}`);
+    });
+}
+
 /**
- * Given a fhir server returns an object with it's Oauth security endpoints
+ * Given a fhir server returns an object with it's Oauth security endpoints that
+ * we are interested in
  * @param baseUrl Fhir server base URL
  */
-export function getSecurityExtensions(metadata?: fhir.CapabilityStatement): NS.OAuthSecurityExtensions {
-    const nsUri = "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris";
-    const extensions = (getPath(metadata || {}, "rest.0.security.extension") || [])
-        .filter(e => e.url === nsUri)
-        .map(o => o.extension)[0];
+export function getSecurityExtensions(baseUrl: string = "/"): Promise<NS.OAuthSecurityExtensions> {
+    return fetchWellKnownJson(baseUrl).then(
+        meta => ({
+            registrationUri: meta.registration_endpoint || "",
+            authorizeUri   : meta.authorization_endpoint || "",
+            tokenUri       : meta.token_endpoint || ""
+        }),
+        () => fetchConformanceStatement(baseUrl).then(metadata => {
+            const nsUri = "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris";
+            const extensions = (getPath(metadata || {}, "rest.0.security.extension") || [])
+                .filter(e => e.url === nsUri)
+                .map(o => o.extension)[0];
 
-    const out: NS.OAuthSecurityExtensions = {
-        registrationUri : "",
-        authorizeUri    : "",
-        tokenUri        : ""
-    };
+            const out: NS.OAuthSecurityExtensions = {
+                registrationUri : "",
+                authorizeUri    : "",
+                tokenUri        : ""
+            };
 
-    if (extensions) {
-        extensions.forEach(ext => {
-            if (ext.url === "register") {
-                out.registrationUri = ext.valueUri;
+            if (extensions) {
+                extensions.forEach(ext => {
+                    if (ext.url === "register") {
+                        out.registrationUri = ext.valueUri;
+                    }
+                    if (ext.url === "authorize") {
+                        out.authorizeUri = ext.valueUri;
+                    }
+                    if (ext.url === "token") {
+                        out.tokenUri = ext.valueUri;
+                    }
+                });
             }
-            if (ext.url === "authorize") {
-                out.authorizeUri = ext.valueUri;
-            }
-            if (ext.url === "token") {
-                out.tokenUri = ext.valueUri;
-            }
-        });
-    }
-    return out;
+
+            return out;
+        }
+    ));
 }
 
 /**
@@ -126,8 +140,7 @@ export function buildAuthorizeUrl(options: NS.AuthorizeOptions | NS.AuthorizeOpt
     }
 
     debug(`Looking up the authorization endpoint for "${serverUrl}"`);
-    return fetchConformanceStatement(serverUrl).then(metadata => {
-        const extensions = getSecurityExtensions(metadata);
+    return getSecurityExtensions(serverUrl).then(extensions => {
 
         // Prepare the object that will be stored in the session
         const state: NS.ClientState = {
@@ -190,7 +203,7 @@ export function buildAuthorizeUrl(options: NS.AuthorizeOptions | NS.AuthorizeOpt
  * @param req
  * @param storage
  */
-export function buildTokenRequest(code: string, state: FhirClient.ClientState): RequestInit {
+export function buildTokenRequest(code: string, state: NS.ClientState): RequestInit {
 
     if (!state.redirectUri) {
         throw new Error(`Missing state.redirectUri`);
@@ -275,9 +288,7 @@ export function completeAuth(): Promise<Client> {
     // The EHR authorization server SHALL return a JSON structure that
     // includes an access token or a message indicating that the
     // authorization request has been denied.
-    return fetch(cached.tokenUri, requestOptions)
-        .then(checkResponse)
-        .then(responseToJSON)
+    return fetchJSON(cached.tokenUri, requestOptions)
         .then(data => {
             debug(`Received tokenResponse. Saving it to the state...`);
             cached.tokenResponse = data;

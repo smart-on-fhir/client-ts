@@ -1,12 +1,13 @@
 import "isomorphic-fetch";
-import * as Lab                    from "lab";
-import { expect }                  from "code";
-import * as oauth                  from "../src/oauth";
-import * as request                from "request";
-import { FhirClient, fhir }        from "..";
-import { urlParam, urlToAbsolute } from "../src/lib";
-import { JSDOM }                   from "jsdom";
-import Client from "../src/Client";
+import * as nock      from "nock";
+import * as Lab       from "lab";
+import { expect }     from "code";
+import * as request   from "request";
+import { JSDOM }      from "jsdom";
+import * as oauth     from "../src/oauth";
+import { urlParam }   from "../src/lib";
+import Client         from "../src/Client";
+import { FhirClient } from "..";
 
 
 interface ExtendedGlobal extends NodeJS.Global {
@@ -69,6 +70,7 @@ const adapterStub = {
 };
 
 beforeEach(() => {
+
     const _data = {};
     (global as ExtendedGlobal).sessionStorage = {
         setItem(id, value) {
@@ -102,6 +104,7 @@ afterEach(() => {
     delete (global as ExtendedGlobal).location;
     delete (global as ExtendedGlobal).btoa;
     delete (global as ExtendedGlobal).window;
+    nock.cleanAll();
 });
 
 describe("oauth", () => {
@@ -131,9 +134,97 @@ describe("oauth", () => {
         });
     });
 
+    describe("fetchWellKnownJson", () => {
+        const mock = {
+            "authorization_endpoint": "https://ehr.example.com/auth/authorize",
+            "token_endpoint"        : "https://ehr.example.com/auth/token",
+            "registration_endpoint" : "https://ehr.example.com/auth/register",
+            "management_endpoint"   : "https://ehr.example.com/user/manage",
+            "introspection_endpoint": "https://ehr.example.com/user/introspect",
+            "revocation_endpoint"   : "https://ehr.example.com/user/revoke",
+            "token_endpoint_auth_methods_supported": [
+                "client_secret_basic"
+            ],
+            "scopes_supported": [
+                "openid",
+                "profile",
+                "launch",
+                "launch/patient",
+                "patient/*.*",
+                "user/*.*",
+                "offline_access"
+            ],
+            "response_types_supported": [
+                "code",
+                "code id_token",
+                "id_token",
+                "refresh_token"
+            ],
+            "capabilities": [
+                "launch-ehr",
+                "client-public",
+                "client-confidential-symmetric",
+                "context-ehr-patient",
+                "sso-openid-connect"
+            ]
+        };
+
+        it ("works", async () => {
+            nock("http://r3.smarthealthit.org").get("/.well-known/smart-configuration").reply(200, mock);
+            const result = await oauth.fetchWellKnownJson("http://r3.smarthealthit.org");
+            expect(result as any).to.equal(mock);
+        });
+    });
+
     describe("getSecurityExtensions", () => {
-        it ("works without arguments", () => {
-            const extensions = oauth.getSecurityExtensions();
+        it ("works with well-known json", async () => {
+            const mock = {
+                "authorization_endpoint": "https://ehr.example.com/auth/authorize",
+                "token_endpoint"        : "https://ehr.example.com/auth/token",
+                "registration_endpoint" : "https://ehr.example.com/auth/register",
+                "management_endpoint"   : "https://ehr.example.com/user/manage",
+                "introspection_endpoint": "https://ehr.example.com/user/introspect",
+                "revocation_endpoint"   : "https://ehr.example.com/user/revoke",
+                "token_endpoint_auth_methods_supported": [
+                    "client_secret_basic"
+                ],
+                "scopes_supported": [
+                    "openid",
+                    "profile",
+                    "launch",
+                    "launch/patient",
+                    "patient/*.*",
+                    "user/*.*",
+                    "offline_access"
+                ],
+                "response_types_supported": [
+                    "code",
+                    "code id_token",
+                    "id_token",
+                    "refresh_token"
+                ],
+                "capabilities": [
+                    "launch-ehr",
+                    "client-public",
+                    "client-confidential-symmetric",
+                    "context-ehr-patient",
+                    "sso-openid-connect"
+                ]
+            };
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/.well-known/smart-configuration").reply(200, mock);
+            const extensions = await oauth.getSecurityExtensions(server);
+            expect(extensions).to.equal({
+                registrationUri : "https://ehr.example.com/auth/register",
+                authorizeUri    : "https://ehr.example.com/auth/authorize",
+                tokenUri        : "https://ehr.example.com/auth/token"
+            });
+        });
+
+        it ("works without arguments", async () => {
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/metadata").reply(200, {});
+            const extensions = await oauth.getSecurityExtensions(server);
             expect(extensions).to.equal({
                 registrationUri : "",
                 authorizeUri    : "",
@@ -141,8 +232,9 @@ describe("oauth", () => {
             });
         });
 
-        it ("finds registrationUri", () => {
-            const extensions = oauth.getSecurityExtensions({
+        it ("finds registrationUri", async () => {
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/metadata").reply(200, {
                 fhirVersion: "whatever",
                 rest: [{
                     security: {
@@ -162,7 +254,8 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            } as fhir.CapabilityStatement);
+            });
+            const extensions = await oauth.getSecurityExtensions(server);
             expect(extensions).to.equal({
                 registrationUri : "registration-uri",
                 authorizeUri    : "",
@@ -171,7 +264,8 @@ describe("oauth", () => {
         });
 
         it ("finds tokenUriUri", async () => {
-            const extensions = oauth.getSecurityExtensions({
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/metadata").reply(200, {
                 fhirVersion: "whatever",
                 rest: [{
                     security: {
@@ -191,7 +285,8 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            } as fhir.CapabilityStatement);
+            });
+            const extensions = await oauth.getSecurityExtensions(server);
             expect(extensions).to.equal({
                 registrationUri : "",
                 authorizeUri    : "",
@@ -199,8 +294,9 @@ describe("oauth", () => {
             });
         });
 
-        it ("finds authorizeUri", () => {
-            const extensions = oauth.getSecurityExtensions({
+        it ("finds authorizeUri", async () => {
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/metadata").reply(200, {
                 fhirVersion: "whatever",
                 rest: [{
                     security: {
@@ -220,7 +316,8 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            } as fhir.CapabilityStatement);
+            });
+            const extensions = await oauth.getSecurityExtensions(server);
             expect(extensions).to.equal({
                 registrationUri : "",
                 authorizeUri    : "authorize-uri",
@@ -228,8 +325,9 @@ describe("oauth", () => {
             });
         });
 
-        it ("finds all extensions", () => {
-            const extensions = oauth.getSecurityExtensions({
+        it ("finds all extensions", async () => {
+            const server = "http://r3.smarthealthit.org";
+            nock(server).get("/metadata").reply(200, {
                 fhirVersion: "whatever",
                 rest: [{
                     security: {
@@ -257,7 +355,8 @@ describe("oauth", () => {
                         type: "whatever"
                     }]
                 }]
-            } as fhir.CapabilityStatement);
+            });
+            const extensions = await oauth.getSecurityExtensions(server);
             expect(extensions).to.equal({
                 registrationUri : "registration-uri",
                 authorizeUri    : "authorize-uri",
@@ -792,12 +891,9 @@ describe("oauth", () => {
             // Pretend that we are at launch.html and FHIR.oAuth2.authorize
             // is called with options. Internally buildAuthorizeUrl will be called
             const authURL = await oauth.buildAuthorizeUrl({
-                serverUrl      : "http://launch.smarthealthit.org/v/r3/fhir",
-                clientId       : "my-clientId",
-                redirectUri    : "my-redirectUri",
-                authorizeUri   : "http://launch.smarthealthit.org/v/r3/auth/authorize",
-                tokenUri       : "http://launch.smarthealthit.org/v/r3/auth/token",
-                registrationUri: ""
+                serverUrl  : "http://launch.smarthealthit.org/v/r3/fhir",
+                clientId   : "my-clientId",
+                redirectUri: "my-redirectUri"
             });
 
             // While constructing the auth URL new state have been stored. Get

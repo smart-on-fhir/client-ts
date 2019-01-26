@@ -489,15 +489,13 @@ var Client = /** @class */ (function () {
                 if (!refreshToken) {
                     throw new Error("Trying to refresh but there is no refresh token");
                 }
-                return [2 /*return*/, fetch(this.state.tokenUri, {
+                return [2 /*return*/, lib_1.fetchJSON(this.state.tokenUri, {
                         method: "POST",
                         headers: {
                             "content-type": "application/x-www-form-urlencoded"
                         },
                         body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(refreshToken)
                     })
-                        .then(lib_1.checkResponse)
-                        .then(lib_1.responseToJSON)
                         .then(function (json) {
                         _this.state.tokenResponse = tslib_1.__assign({}, _this.state.tokenResponse, json);
                         // Save this change into the sessionStorage
@@ -781,6 +779,10 @@ function responseToJSON(resp) {
     return resp.json();
 }
 exports.responseToJSON = responseToJSON;
+function fetchJSON(url, options) {
+    return fetch(url, options).then(checkResponse).then(responseToJSON);
+}
+exports.fetchJSON = fetchJSON;
 function humanizeError(resp) {
     return tslib_1.__awaiter(this, void 0, void 0, function () {
         var msg, json, _1, text, _2;
@@ -861,43 +863,57 @@ var lib_1 = __webpack_require__(/*! ./lib */ "./src/lib.ts");
 function fetchConformanceStatement(baseUrl) {
     if (baseUrl === void 0) { baseUrl = "/"; }
     var url = String(baseUrl).replace(/\/*$/, "/") + "metadata";
-    return fetch(url)
-        .then(lib_1.checkResponse)
-        .then(lib_1.responseToJSON)
-        .catch(function (ex) {
+    return lib_1.fetchJSON(url).catch(function (ex) {
         lib_1.debug(ex);
         throw new Error("Failed to fetch the conformance statement from \"" + url + "\". " + ex);
     });
 }
 exports.fetchConformanceStatement = fetchConformanceStatement;
+function fetchWellKnownJson(baseUrl) {
+    if (baseUrl === void 0) { baseUrl = "/"; }
+    var url = String(baseUrl).replace(/\/*$/, "/") + ".well-known/smart-configuration";
+    return lib_1.fetchJSON(url).catch(function (ex) {
+        lib_1.debug(ex);
+        throw new Error("Failed to fetch the well-known json \"" + url + "\". " + ex.message);
+    });
+}
+exports.fetchWellKnownJson = fetchWellKnownJson;
 /**
- * Given a fhir server returns an object with it's Oauth security endpoints
+ * Given a fhir server returns an object with it's Oauth security endpoints that
+ * we are interested in
  * @param baseUrl Fhir server base URL
  */
-function getSecurityExtensions(metadata) {
-    var nsUri = "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris";
-    var extensions = (lib_1.getPath(metadata || {}, "rest.0.security.extension") || [])
-        .filter(function (e) { return e.url === nsUri; })
-        .map(function (o) { return o.extension; })[0];
-    var out = {
-        registrationUri: "",
-        authorizeUri: "",
-        tokenUri: ""
-    };
-    if (extensions) {
-        extensions.forEach(function (ext) {
-            if (ext.url === "register") {
-                out.registrationUri = ext.valueUri;
-            }
-            if (ext.url === "authorize") {
-                out.authorizeUri = ext.valueUri;
-            }
-            if (ext.url === "token") {
-                out.tokenUri = ext.valueUri;
-            }
-        });
-    }
-    return out;
+function getSecurityExtensions(baseUrl) {
+    if (baseUrl === void 0) { baseUrl = "/"; }
+    return fetchWellKnownJson(baseUrl).then(function (meta) { return ({
+        registrationUri: meta.registration_endpoint || "",
+        authorizeUri: meta.authorization_endpoint || "",
+        tokenUri: meta.token_endpoint || ""
+    }); }, function () { return fetchConformanceStatement(baseUrl).then(function (metadata) {
+        var nsUri = "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris";
+        var extensions = (lib_1.getPath(metadata || {}, "rest.0.security.extension") || [])
+            .filter(function (e) { return e.url === nsUri; })
+            .map(function (o) { return o.extension; })[0];
+        var out = {
+            registrationUri: "",
+            authorizeUri: "",
+            tokenUri: ""
+        };
+        if (extensions) {
+            extensions.forEach(function (ext) {
+                if (ext.url === "register") {
+                    out.registrationUri = ext.valueUri;
+                }
+                if (ext.url === "authorize") {
+                    out.authorizeUri = ext.valueUri;
+                }
+                if (ext.url === "token") {
+                    out.tokenUri = ext.valueUri;
+                }
+            });
+        }
+        return out;
+    }); });
 }
 exports.getSecurityExtensions = getSecurityExtensions;
 /**
@@ -966,8 +982,7 @@ function buildAuthorizeUrl(options, loc) {
             "query.fhirServiceUrl or options.serverUrl (in that order)"));
     }
     lib_1.debug("Looking up the authorization endpoint for \"" + serverUrl + "\"");
-    return fetchConformanceStatement(serverUrl).then(function (metadata) {
-        var extensions = getSecurityExtensions(metadata);
+    return getSecurityExtensions(serverUrl).then(function (extensions) {
         // Prepare the object that will be stored in the session
         var state = tslib_1.__assign({ serverUrl: serverUrl, clientId: cfg.clientId, redirectUri: lib_1.urlToAbsolute(cfg.redirectUri || "."), scope: cfg.scope || "" }, extensions);
         if (cfg.clientSecret) {
@@ -1079,9 +1094,7 @@ function completeAuth() {
     // The EHR authorization server SHALL return a JSON structure that
     // includes an access token or a message indicating that the
     // authorization request has been denied.
-    return fetch(cached.tokenUri, requestOptions)
-        .then(lib_1.checkResponse)
-        .then(lib_1.responseToJSON)
+    return lib_1.fetchJSON(cached.tokenUri, requestOptions)
         .then(function (data) {
         lib_1.debug("Received tokenResponse. Saving it to the state...");
         cached.tokenResponse = data;

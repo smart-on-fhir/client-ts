@@ -1,6 +1,6 @@
 import { FhirClient as NS, fhir } from "..";
 import Storage from "./Storage";
-import { getPath, checkResponse, responseToJSON, debug, resolve } from "./lib";
+import { getPath, fetchJSON, checkResponse, responseToJSON, resolve } from "./lib";
 
 declare global {
     interface Window {
@@ -246,15 +246,13 @@ export default class Client
             throw new Error("Trying to refresh but there is no refresh token");
         }
 
-        return fetch(this.state.tokenUri, {
+        return fetchJSON(this.state.tokenUri, {
             method: "POST",
             headers: {
                 "content-type": "application/x-www-form-urlencoded"
             },
             body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`
         })
-        .then(checkResponse)
-        .then(responseToJSON)
         .then(json => {
             this.state.tokenResponse = {
                 ...this.state.tokenResponse,
