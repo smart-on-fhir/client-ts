@@ -6,6 +6,8 @@
   "scripts": {
     "test": "lab test/*.test.ts",
     "test:watch": "nodemon -e ts,js,json -w test -w dist/*.js -x 'lab test/*.test.ts'",
+    "build": "webpack --mode development",
+    "build:watch": "webpack --watch --mode development",
     "dev": "webpack --watch --mode development"
   },
   "keywords": [],

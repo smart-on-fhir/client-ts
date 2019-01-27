@@ -3,6 +3,7 @@ declare global {
     interface Window {
         FHIR: any;
         SMART: any;
+        fhir?: (options?: any) => any; // might be set by fhir.js
     }
 }
 
@@ -134,141 +135,7 @@ export namespace FhirClient {
          * Your client secret if you have one (for confidential clients)
          */
         clientSecret?: string;
-    }
-
-    /**
-     * Describes the state that should be passed to the Client constructor
-     */
-    interface ClientState extends OAuthSecurityExtensions {
-        /**
-         * The base URL of the Fhir server. The library should have detected it
-         * at authorization time from request query params of from config options.
-         */
-        serverUrl: string;
-
-        /**
-         * The client_id that you should have obtained while registering your
-         * app with the auth server or EHR (as set in the configuration options)
-         */
-        clientId: string;
-
-        /**
-         * The URI to redirect to after successful authorization, as set in the
-         * configuration options.
-         */
-        redirectUri: string;
-
-        /**
-         * The access scopes that you requested in your options (or an empty string).
-         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-         */
-        scope: string;
-
-        /**
-         * Your client secret if you have one (for confidential clients)
-         */
-        clientSecret?: string;
-
-        /**
-         * The (encrypted) access token, in case you have completed the auth flow
-         * already.
-         */
-        access_token?: string;
-
-        /**
-         * The response object received from the token endpoint while trying to
-         * exchange the auth code for an access token (if you have reached that point).
-         */
-        tokenResponse?: TokenResponse;
-    }
-
-
-    /**
-     * The response object received from the token endpoint while trying to
-     * exchange the auth code for an access token. This object has a well-known
-     * base structure but the auth servers are free to augment it with
-     * additional properties.
-     * @see http://docs.smarthealthit.org/authorization/
-     */
-    interface TokenResponse {
-
-        /**
-         * If present, this tells the app that it is being rendered within an
-         * EHR frame and the UI outside that frame already displays the selected
-         * patient's name, age, gender etc. The app can decide to hide those
-         * details to prevent the UI from duplicated information.
-         */
-        need_patient_banner?: boolean;
-
-        /**
-         * This could be a public location of some style settings that the EHR
-         * would like to suggest. The app might look it up and optionally decide
-         * to apply some or all of it.
-         * @see https://launch.smarthealthit.org/smart-style.json
-         */
-        smart_style_url?: string;
-
-        /**
-         * If you have requested that require it (like `launch` or `launch/patient`)
-         * the selected patient ID will be available here.
-         */
-        patient?: string;
-
-        /**
-         * If you have requested that require it (like `launch` or `launch/encounter`)
-         * the selected encounter ID will be available here.
-         * **NOTE:** This is not widely supported as of 2018. 
-         */
-        encounter?: string;
-
-        /**
-         * If you have requested `openid` and `profile` scopes the profile of
-         * the active user will be available as `client_id`.
-         * **NOTE:** Regardless of it's name, this property does not store an ID
-         * but a token that also suggests the user type like `Patient/123`,
-         * `Practitioner/xyz` etc.
-         */
-        client_id?: string;
-
-        /**
-         * Fixed value: bearer
-         */
-        token_type: "bearer" | "Bearer";
-
-        /**
-         * Scope of access authorized. Note that this can be different from the
-         * scopes requested by the app.
-         */
-        scope: string,
-
-        /**
-         * Lifetime in seconds of the access token, after which the token SHALL NOT
-         * be accepted by the resource server
-         */
-        expires_in ?: number;
-
-        /**
-         * The access token issued by the authorization server
-         */
-        access_token: string;
-
-        /**
-         * Authenticated patient identity and profile, if requested
-         */
-        id_token ?: string;
-
-        /**
-         * Token that can be used to obtain a new access token, using the same or a
-         * subset of the original authorization grants
-         */
-        refresh_token ?: string;
-
-        /**
-         * Other properties might be passed by the server
-         */
-        [key: string]: any;
-    }
-    
+    }  
 
     interface OAuth2 {
         settings: OAuth2Config
@@ -326,20 +193,109 @@ export namespace FhirClient {
         state?: string;
     }
 
-    type readyCallback  = (client: any) => any;
-    type readyErrorback = (error: Error | string) => any;
+    // type readyCallback  = (client: any) => any;
+    // type readyErrorback = (error: Error | string) => any;
     
-    type readyArgsFn1 = [readyCallback];
-    type readyArgsFn2 = [readyCallback, readyErrorback];
-    type readyArgsFn3 = [readyInput, readyCallback];
-    type readyArgsFn4 = [readyInput, readyCallback, readyErrorback];
-    type readyArgsResult = {
-        input   : readyInput;
-        callback: readyCallback;
-        errback : readyErrorback;
-    }
-    type readyFnArgs  = readyArgsFn1 | readyArgsFn2 | readyArgsFn3 | readyArgsFn4;
+    // type readyArgsFn1 = [readyCallback];
+    // type readyArgsFn2 = [readyCallback, readyErrorback];
+    // type readyArgsFn3 = [readyInput, readyCallback];
+    // type readyArgsFn4 = [readyInput, readyCallback, readyErrorback];
+    // type readyArgsResult = {
+    //     input   : readyInput;
+    //     callback: readyCallback;
+    //     errback : readyErrorback;
+    // }
+    // type readyFnArgs  = readyArgsFn1 | readyArgsFn2 | readyArgsFn3 | readyArgsFn4;
+}
 
+export namespace Client {
+    
+    /**
+     * The API exposed by fhir.js
+     */
+    interface FhirJsAPI {
+        [key: string]: any;
+    }
+
+    interface Patient {
+        id: string;
+        read: () => Promise<fhir.Resource>;
+        api?: FhirJsAPI;
+    }
+
+    interface Encounter {
+        id: string;
+        read: () => Promise<fhir.Resource>;
+    }
+    
+    interface User {
+        id: string;
+        type: string; // Patient, Practitioner, RelatedPerson...
+        read: () => Promise<fhir.Resource>;
+    }
+    
+    /**
+     * Describes the state that should be passed to the Client constructor
+     */
+    interface State {
+        /**
+         * The base URL of the Fhir server. The library should have detected it
+         * at authorization time from request query params of from config options.
+         */
+        serverUrl: string;
+
+        /**
+         * The client_id that you should have obtained while registering your
+         * app with the auth server or EHR (as set in the configuration options)
+         */
+        clientId: string;
+
+        /**
+         * The URI to redirect to after successful authorization, as set in the
+         * configuration options.
+         */
+        redirectUri: string;
+
+        /**
+         * The access scopes that you requested in your options (or an empty string).
+         * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+         */
+        scope: string;
+
+        /**
+         * Your client secret if you have one (for confidential clients)
+         */
+        clientSecret?: string;
+
+        /**
+         * The (encrypted) access token, in case you have completed the auth flow
+         * already.
+         */
+        access_token?: string;
+
+        /**
+         * The response object received from the token endpoint while trying to
+         * exchange the auth code for an access token (if you have reached that point).
+         */
+        tokenResponse?: SMART.TokenResponse;
+
+        /**
+         * You could register new SMART client at this endpoint (if the server
+         * supports dynamic client registration)
+         */
+        registrationUri: string;
+
+        /**
+         * You must call this endpoint to ask for authorization code
+         */
+        authorizeUri: string;
+
+        /**
+         * You must call this endpoint to exchange your authorization code
+         * for an access token.
+         */
+        tokenUri: string;
+    }
 }
 
 /**
@@ -796,7 +752,6 @@ export namespace SMART {
         revoke?: string;
     }
 
-
     interface WellKnownSmartConfiguration {
         /**
          * URL to the OAuth2 authorization endpoint.
@@ -862,5 +817,101 @@ export namespace SMART {
             launchContextStandalone |
             permissions
         )[]; 
+    }
+
+    interface IDToken {
+        profile: string;
+        aud: string;
+        sub: string;
+        iss: string;
+        iat: number;
+        exp: number;
+        [key: string]: any;
+    }
+
+    /**
+     * The response object received from the token endpoint while trying to
+     * exchange the auth code for an access token. This object has a well-known
+     * base structure but the auth servers are free to augment it with
+     * additional properties.
+     * @see http://docs.smarthealthit.org/authorization/
+     */
+    interface TokenResponse {
+
+        /**
+         * If present, this tells the app that it is being rendered within an
+         * EHR frame and the UI outside that frame already displays the selected
+         * patient's name, age, gender etc. The app can decide to hide those
+         * details to prevent the UI from duplicated information.
+         */
+        need_patient_banner?: boolean;
+
+        /**
+         * This could be a public location of some style settings that the EHR
+         * would like to suggest. The app might look it up and optionally decide
+         * to apply some or all of it.
+         * @see https://launch.smarthealthit.org/smart-style.json
+         */
+        smart_style_url?: string;
+
+        /**
+         * If you have requested that require it (like `launch` or `launch/patient`)
+         * the selected patient ID will be available here.
+         */
+        patient?: string;
+
+        /**
+         * If you have requested that require it (like `launch` or `launch/encounter`)
+         * the selected encounter ID will be available here.
+         * **NOTE:** This is not widely supported as of 2018. 
+         */
+        encounter?: string;
+
+        /**
+         * If you have requested `openid` and `profile` scopes the profile of
+         * the active user will be available as `client_id`.
+         * **NOTE:** Regardless of it's name, this property does not store an ID
+         * but a token that also suggests the user type like `Patient/123`,
+         * `Practitioner/xyz` etc.
+         */
+        client_id?: string;
+
+        /**
+         * Fixed value: bearer
+         */
+        token_type: "bearer" | "Bearer";
+
+        /**
+         * Scope of access authorized. Note that this can be different from the
+         * scopes requested by the app.
+         */
+        scope: string,
+
+        /**
+         * Lifetime in seconds of the access token, after which the token SHALL NOT
+         * be accepted by the resource server
+         */
+        expires_in ?: number;
+
+        /**
+         * The access token issued by the authorization server
+         */
+        access_token: string;
+
+        /**
+         * Authenticated patient identity and profile, if requested
+         */
+        id_token ?: string;
+
+        /**
+         * Token that can be used to obtain a new access token, using the same or a
+         * subset of the original authorization grants
+         */
+        refresh_token ?: string;
+
+        /**
+         * Other properties might be passed by the server
+         */
+        [key: string]: any;
     }
 }

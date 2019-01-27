@@ -1,43 +1,6 @@
-import { FhirClient as NS, fhir } from "..";
+import { SMART, Client as ClientInterface } from "..";
 import Storage from "./Storage";
 import { getPath, fetchJSON, checkResponse, responseToJSON, resolve } from "./lib";
-
-declare global {
-    interface Window {
-        fhir?: (options?: any) => any;
-    }
-}
-
-interface FhirJsAPI {
-    [key: string]: any;
-}
-
-interface Patient {
-    id: string;
-    read: () => Promise<fhir.Resource>;
-    api?: FhirJsAPI;
-}
-
-interface Encounter {
-    id: string;
-    read: () => Promise<fhir.Resource>;
-}
-
-interface User {
-    id: string;
-    type: string; // Patient, Practitioner, RelatedPerson...
-    read: () => Promise<fhir.Resource>;
-}
-
-interface IDToken {
-    profile: string;
-    aud: string;
-    sub: string;
-    iss: string;
-    iat: number;
-    exp: number;
-    [key: string]: any;
-}
 
 
 /**
@@ -50,34 +13,34 @@ export default class Client
      * The serialized state as it is stored in the session (or other storage).
      * Contains things like tokens, client secrets, settings and so on.
      */
-    protected state: NS.ClientState;
+    protected state: ClientInterface.State;
 
     /**
      * The currently selected patient (if any)
      */
-    public patient: Patient | null = null;
+    public patient: ClientInterface.Patient | null = null;
 
     /**
      * The currently logged-in user (if any)
      */
-    public user: User | null = null;
+    public user: ClientInterface.User | null = null;
 
     /**
      * The currently selected encounter (if any and if supported by the EHR)
      */
-    public encounter: Encounter | null = null;
+    public encounter: ClientInterface.Encounter | null = null;
 
     /**
      * Will refer to the global fhir.js api if fhir.js is available. It will be
      * undefined.
      */
-    public api?: FhirJsAPI;
+    public api?: ClientInterface.FhirJsAPI;
 
     /**
      * Creates ne Client instance.
      * @param state Required state to initialize with.
      */
-    public constructor(state: NS.ClientState)
+    public constructor(state: ClientInterface.State)
     {
         // This might happen if the state have been lost (for example the
         // sessionStorage has been cleared, size limit exceeded etc.).
@@ -135,7 +98,7 @@ export default class Client
     private parseIdToken(idToken)
     {
         try {
-            const token: IDToken = JSON.parse(atob(idToken.split(".")[1]));
+            const token: SMART.IDToken = JSON.parse(atob(idToken.split(".")[1]));
             const fhirUser = token.fhirUser || token.profile || "";
             const tokens   = fhirUser.split("/");
             if (tokens.length > 1) {
@@ -256,7 +219,7 @@ export default class Client
         .then(json => {
             this.state.tokenResponse = {
                 ...this.state.tokenResponse,
-                ...json as NS.TokenResponse
+                ...json as SMART.TokenResponse
             };
             // Save this change into the sessionStorage
             Storage.set(this.state);

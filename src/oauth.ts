@@ -1,4 +1,9 @@
-import { FhirClient as NS, fhir, SMART } from "..";
+import {
+    FhirClient as NS,
+    fhir,
+    SMART,
+    Client as ClientInterface
+} from "..";
 import Client                            from "./Client";
 import Storage                           from "./Storage";
 import {
@@ -143,7 +148,7 @@ export function buildAuthorizeUrl(options: NS.AuthorizeOptions | NS.AuthorizeOpt
     return getSecurityExtensions(serverUrl).then(extensions => {
 
         // Prepare the object that will be stored in the session
-        const state: NS.ClientState = {
+        const state: ClientInterface.State = {
             serverUrl,
             clientId   : cfg.clientId,
             redirectUri: urlToAbsolute(cfg.redirectUri || "."),
@@ -203,7 +208,7 @@ export function buildAuthorizeUrl(options: NS.AuthorizeOptions | NS.AuthorizeOpt
  * @param req
  * @param storage
  */
-export function buildTokenRequest(code: string, state: NS.ClientState): RequestInit {
+export function buildTokenRequest(code: string, state: ClientInterface.State): RequestInit {
 
     if (!state.redirectUri) {
         throw new Error(`Missing state.redirectUri`);
@@ -296,7 +301,7 @@ export function completeAuth(): Promise<Client> {
             return cached;
         })
         .then(stored => waitForDomReady(stored))
-        .then(stored => new Client(stored as NS.ClientState));
+        .then(stored => new Client(stored as ClientInterface.State));
 }
 
 export function init(options?: NS.ClientOptions): Promise<Client | {}>
