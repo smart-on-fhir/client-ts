@@ -1,4 +1,5 @@
-# Work in progress! Please do not use yet!
+## ⚠️ This project is deprecated and is not actively maintained!
+Use https://github.com/smart-on-fhir/client-js instead.
 
 ## Agenda and Goals
 
